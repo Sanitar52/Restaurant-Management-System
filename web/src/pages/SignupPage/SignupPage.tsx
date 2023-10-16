@@ -31,10 +31,11 @@ const SignupPage = () => {
   }, [])
 
   const onSubmit = async (data: Record<string, string>) => {
-    
+    console.log(data)
     const response = await signUp({
       username: data.username,
       password: data.password,
+      restaurantCode: data.restaurantCode
     })
 
     if (response.message) {

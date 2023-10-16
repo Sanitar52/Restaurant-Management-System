@@ -33,11 +33,18 @@ describe('restaurants', () => {
 
   scenario('creates a restaurant', async () => {
     const result = await createRestaurant({
-      input: { restaurantName: 'String', restaurantCode: 8802607 },
+      input: {
+        name: 'String',
+        body: 'String',
+        logo: 'String',
+        restaurantCode: 3867122,
+      },
     })
 
-    expect(result.restaurantName).toEqual('String')
-    expect(result.restaurantCode).toEqual(8802607)
+    expect(result.name).toEqual('String')
+    expect(result.body).toEqual('String')
+    expect(result.logo).toEqual('String')
+    expect(result.restaurantCode).toEqual(3867122)
   })
 
   scenario('updates a restaurant', async (scenario: StandardScenario) => {
@@ -46,10 +53,10 @@ describe('restaurants', () => {
     })) as Restaurant
     const result = await updateRestaurant({
       id: original.id,
-      input: { restaurantName: 'String2' },
+      input: { name: 'String2' },
     })
 
-    expect(result.restaurantName).toEqual('String2')
+    expect(result.name).toEqual('String2')
   })
 
   scenario('deletes a restaurant', async (scenario: StandardScenario) => {

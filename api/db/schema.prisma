@@ -13,6 +13,7 @@ generator client {
 // TODO: Please remove the following example:
 model User {
   id                  Int       @id @default(autoincrement())
+  employee            Employee?
   name                String?
   email               String    @unique
   username            String    @unique
@@ -22,24 +23,31 @@ model User {
   resetTokenExpiresAt DateTime?
 }
 
-//model Employee {
- // id           Int        @id @default(autoincrement())
- // userid       Int        @unique
- // restaurantid Int
- // user         User       @relation(fields: [userid], references: [id])
-  //restaurant   Restaurant @relation(fields: [restaurantid], references: [id])
-//}
+model Employee {
+  id           Int        @id @default(autoincrement())
+  userid       Int        @unique
+  restaurantCode Int
+  user         User       @relation(fields: [userid], references: [id])
+  restaurant   Restaurant @relation(fields: [restaurantCode], references: [restaurantCode])
+}
 
 model Restaurant {
   id          Int        @id @default(autoincrement())
+  employee        Employee[]
+  menuItems   MenuItem[]
   name        String
   body        String
   logo        String
-  restaurantCode        Int   
+  restaurantCode        Int   @unique
 
 }
 
 model MenuItem {
   id Int @id @default(autoincrement())
+  restaurantCode  Int
+  restaurant Restaurant @relation(fields:[restaurantCode], references: [restaurantCode])
   name String
+  logo String
+  description String
+  quantity  Int
 }

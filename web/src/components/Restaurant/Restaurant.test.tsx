@@ -12,7 +12,6 @@ describe('Restaurant', () => {
         name: '',
         body: '',
         logo: '',
-        description: ''
       }} />)
     }).not.toThrow()
   })

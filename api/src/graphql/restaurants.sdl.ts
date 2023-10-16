@@ -1,22 +1,29 @@
 export const schema = gql`
   type Restaurant {
     id: Int!
-    restaurantName: String!
+    employee: [Employee]!
+    name: String!
+    body: String!
+    logo: String!
     restaurantCode: Int!
   }
 
   type Query {
-    restaurants: [Restaurant!]! @requireAuth
-    restaurant(id: Int!): Restaurant @requireAuth
+    restaurants: [Restaurant!]! @skipAuth
+    restaurant(id: Int!): Restaurant @skipAuth
   }
 
   input CreateRestaurantInput {
-    restaurantName: String!
+    name: String!
+    body: String!
+    logo: String!
     restaurantCode: Int!
   }
 
   input UpdateRestaurantInput {
-    restaurantName: String
+    name: String
+    body: String
+    logo: String
     restaurantCode: Int
   }
 

@@ -28,12 +28,22 @@ describe('menuItems', () => {
     expect(result).toEqual(scenario.menuItem.one)
   })
 
-  scenario('creates a menuItem', async () => {
+  scenario('creates a menuItem', async (scenario: StandardScenario) => {
     const result = await createMenuItem({
-      input: { name: 'String' },
+      input: {
+        restaurantCode: scenario.menuItem.two.restaurantCode,
+        name: 'String',
+        logo: 'String',
+        description: 'String',
+        quantity: 5124634,
+      },
     })
 
+    expect(result.restaurantCode).toEqual(scenario.menuItem.two.restaurantCode)
     expect(result.name).toEqual('String')
+    expect(result.logo).toEqual('String')
+    expect(result.description).toEqual('String')
+    expect(result.quantity).toEqual(5124634)
   })
 
   scenario('updates a menuItem', async (scenario: StandardScenario) => {

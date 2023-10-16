@@ -1,11 +1,15 @@
 import type { RestaurantsQuery } from 'types/graphql'
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
+import Restaurant from '../Restaurant'
 
 export const QUERY = gql`
   query RestaurantsQuery {
     restaurants {
-      id
-    }
+    id
+    body
+    logo
+    name
+  }
   }
 `
 
@@ -21,10 +25,14 @@ export const Success = ({
   restaurants,
 }: CellSuccessProps<RestaurantsQuery>) => {
   return (
-    <ul>
-      {restaurants.map((item) => {
-        return <li key={item.id}>{JSON.stringify(item)}</li>
+    <div className="flex flex-wrap justify-center">
+      {restaurants.map((restaurant) => {
+        return (
+          <div className="mr-12 hover:bg-gray-200 transition-colors duration-300 ease-in-out" key={restaurant.id}>
+            <Restaurant restaurant={restaurant} />
+          </div>
+        )
       })}
-    </ul>
+    </div>
   )
 }

@@ -1,23 +1,34 @@
+import { Link, routes } from '@redwoodjs/router';
+import { Toaster } from '@redwoodjs/web/dist/toast';
+import React from 'react';
+
 interface Props {
   restaurant: {
-    name: string
-    body: string
-    logo: string
-    description: string
-  }
+    name: string;
+    body: string;
+    logo: string;
+  };
 }
 
-
-const Restaurant = ({ restaurant } : Props) => {
+const Restaurant = ({ restaurant }: Props) => {
   return (
-    <div className="bg-gray-200 p-8 rounded-lg">
-      <header className="flex justify-between">
-      <h2 className="font-semibold text-gray-700">{restaurant.name}</h2>
-      </header>
-      <p className="text-sm mt-2">{restaurant.body}</p>
-      <p className="text-sm mt-2">{restaurant.description}</p>
-    </div>
+    <>
+      <Toaster toastOptions={{ className: 'rw-toast', duration: 2000 }} />
+      <Link to={routes.restaurant({ name: restaurant.name })} className="max-w-sm overflow-hidden rounded shadow-lg">
+        <div className="max-w-sm overflow-hidden rounded shadow-lg hover:bg-gray-200 transition-colors duration-300 ease-in-out">
+          <img
+            className="h-[300px] w-[500px] hover:bg-gray-200 transition-colors duration-300 ease-in-out"
+            src={restaurant.logo}
+            alt="Card Image"
+          />
+          <div className="px-6 py-4">
+            <div className="mb-2 text-xl font-bold">{restaurant.name}</div>
+            <p className="text-base text-gray-700">{restaurant.body}</p>
+          </div>  
+        </div>
+      </Link>
+    </>
   )
-}
+};
 
-export default Restaurant
+export default Restaurant;

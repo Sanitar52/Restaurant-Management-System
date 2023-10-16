@@ -1,4 +1,8 @@
-import type { QueryResolvers, MutationResolvers } from 'types/graphql'
+import type {
+  QueryResolvers,
+  MutationResolvers,
+  MenuItemRelationResolvers,
+} from 'types/graphql'
 
 import { db } from 'src/lib/db'
 
@@ -34,4 +38,10 @@ export const deleteMenuItem: MutationResolvers['deleteMenuItem'] = ({ id }) => {
   return db.menuItem.delete({
     where: { id },
   })
+}
+
+export const MenuItem: MenuItemRelationResolvers = {
+  restaurant: (_obj, { root }) => {
+    return db.menuItem.findUnique({ where: { id: root?.id } }).restaurant()
+  },
 }
