@@ -6,7 +6,21 @@ export const schema = gql`
     name: String!
     logo: String!
     description: String!
+    category: Category!
     quantity: Int!
+    price: Float!
+    cartMenuItem: [CartMenuItem]!
+  }
+
+  enum Category {
+    APPETIZER
+    PIZZA
+    BURGER
+    MAIN_COURSE
+    VEGETARIAN
+    DESSERT
+    COLDDRINKS
+    HOTDRINKS
   }
 
   type Query {
@@ -19,7 +33,9 @@ export const schema = gql`
     name: String!
     logo: String!
     description: String!
+    category: Category!
     quantity: Int!
+    price: Float!
   }
 
   input UpdateMenuItemInput {
@@ -27,11 +43,13 @@ export const schema = gql`
     name: String
     logo: String
     description: String
+    category: Category
     quantity: Int
+    price: Float
   }
 
   type Mutation {
-    createMenuItem(input: CreateMenuItemInput!): MenuItem! @skipAuth
+    createMenuItem(input: CreateMenuItemInput!): MenuItem! @requireAuth
     updateMenuItem(id: Int!, input: UpdateMenuItemInput!): MenuItem!
       @requireAuth
     deleteMenuItem(id: Int!): MenuItem! @requireAuth

@@ -44,4 +44,7 @@ export const MenuItem: MenuItemRelationResolvers = {
   restaurant: (_obj, { root }) => {
     return db.menuItem.findUnique({ where: { id: root?.id } }).restaurant()
   },
+  cartMenuItem: (_obj, { root }) => {
+    return db.menuItem.findUnique({ where: { id: root?.id } }).cartMenuItem()
+  },
 }

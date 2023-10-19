@@ -8,7 +8,7 @@ export const standard = defineScenario<Prisma.RestaurantCreateArgs>({
         name: 'String',
         body: 'String',
         logo: 'String',
-        restaurantCode: 9209531,
+        restaurantCode: 6837426,
       },
     },
     two: {
@@ -16,7 +16,7 @@ export const standard = defineScenario<Prisma.RestaurantCreateArgs>({
         name: 'String',
         body: 'String',
         logo: 'String',
-        restaurantCode: 8809004,
+        restaurantCode: 214411,
       },
     },
   },

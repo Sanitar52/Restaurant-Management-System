@@ -7,10 +7,11 @@ export const standard = defineScenario<Prisma.EmployeeCreateArgs>({
       data: {
         user: {
           create: {
-            email: 'String621944',
-            username: 'String7603681',
+            email: 'String3980206',
+            username: 'String4512398',
             hashedPassword: 'String',
             salt: 'String',
+            updatedAt: '2023-10-17T07:18:23.372Z',
           },
         },
         restaurant: {
@@ -18,7 +19,7 @@ export const standard = defineScenario<Prisma.EmployeeCreateArgs>({
             name: 'String',
             body: 'String',
             logo: 'String',
-            restaurantCode: 8278464,
+            restaurantCode: 164380,
           },
         },
       },
@@ -27,10 +28,11 @@ export const standard = defineScenario<Prisma.EmployeeCreateArgs>({
       data: {
         user: {
           create: {
-            email: 'String3732743',
-            username: 'String9504924',
+            email: 'String9731914',
+            username: 'String30564',
             hashedPassword: 'String',
             salt: 'String',
+            updatedAt: '2023-10-17T07:18:23.372Z',
           },
         },
         restaurant: {
@@ -38,7 +40,7 @@ export const standard = defineScenario<Prisma.EmployeeCreateArgs>({
             name: 'String',
             body: 'String',
             logo: 'String',
-            restaurantCode: 2897039,
+            restaurantCode: 6132515,
           },
         },
       },

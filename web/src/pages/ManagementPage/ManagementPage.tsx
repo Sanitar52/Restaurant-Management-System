@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from 'src/auth';
 import {
   Form,
@@ -9,7 +9,7 @@ import {
   SubmitHandler,
   SelectField,
 } from '@redwoodjs/forms';
-import { MetaTags, useMutation } from '@redwoodjs/web';
+import { MetaTags, useMutation, useQuery } from '@redwoodjs/web';
 import { toast } from '@redwoodjs/web/dist/toast';
 import { useRef } from 'react';
 import {
@@ -25,15 +25,36 @@ const CREATE_MENU_ITEM = gql`
     }
   }
 `;
+const USER_RESTAURANT = gql`
+  query GetCurrentRestaurantName($userId: Int!) {
+  user(id: $userId) {
+    employee {
+      restaurant {
+        name
+        restaurantCode
+      }
+    }
+  }
+}
+`;
 
-const ManagementPage: React.FC = () => {
+const ManagementPage: React.FC=  () => {
   const [showPopup, setShowPopup] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const  currentUser  = useAuth().currentUser as User;
-  const currentUserRestaurant = currentUser?.restaurant;
+  const auth = useAuth();
+  const [currentUserRestaurantData, setCurrentUserRestaurantData] = useState<any>(
+    null
+  );
 
-  const idRef = useRef<HTMLInputElement>(null);
+  const { loading, error, data: restaurantData } = useQuery(USER_RESTAURANT, {
+    variables: { userId: auth.currentUser ? auth.currentUser.id : null },
+  });
 
+  useEffect(() => {
+    if (!loading && !error) {
+      setCurrentUserRestaurantData(restaurantData);
+    }
+  }, [loading, error, restaurantData]);
   const openPopup = (formType: string) => {
     setShowPopup(formType);
   };
@@ -47,15 +68,18 @@ const ManagementPage: React.FC = () => {
     CreateMenuItemInputVariables
   >(CREATE_MENU_ITEM);
 
-  const onSubmit: SubmitHandler<CreateMenuItemInput> = (data) => {
+  const onSubmit: SubmitHandler<CreateMenuItemInput> = async (data) => {
+  
     setIsLoading(true)
     const quantity: number = data.quantity;
-    create({
+    const price: number = data.price;
+    await create({
       variables: {
         input: {
           ...data,
-          quantity: parseInt(quantity.toString()),
-          restaurantCode: currentUserRestaurant?.restaurantCode || 0, // Use the restaurant code from the user's restaurant
+          quantity: parseInt(quantity.toString(), 10),
+          price: parseFloat(price.toString()),
+          restaurantCode: restaurantData.user?.employee?.restaurant?.restaurantCode || 0, // Use the restaurant code from the user's restaurant
         },
       },
     })
@@ -67,6 +91,7 @@ const ManagementPage: React.FC = () => {
         toast.error('Error creating menu item');
         console.error(error);
       });
+      setIsLoading(false);
   };
 
   return (
@@ -174,6 +199,55 @@ const ManagementPage: React.FC = () => {
               <FieldError name="quantity" className="rw-field-error" />
 
               <Label
+                name="price"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                Price
+              </Label>
+              <TextField
+                name="price"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Price is required',
+                  },
+                }}
+              />
+              <FieldError name="price" className="rw-field-error" />
+
+              <Label
+                name="category"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                Category
+              </Label>
+              <SelectField
+                name="category"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Category is required',
+                  },
+                }}
+              >
+                <option value="APPETIZER">Appetizer</option>
+                <option value="PIZZA">Pizza</option>
+                <option value="BURGER">Burger</option>
+                <option value="MAIN_COURSE">Main Course</option>
+                <option value="VEGETARIAN">Vegetarian</option>
+                <option value="DESSERT">Dessert</option>
+                <option value="HOTDRINK">Hot Drink</option>
+                <option value="COLDDRINK">Cold Drink</option>
+              </SelectField>
+              <FieldError name="category" className="rw-field-error" />
+
+              <Label
                 name="restaurantCode"
                 className="rw-label"
                 errorClassName="rw-label rw-label-error"
@@ -184,7 +258,7 @@ const ManagementPage: React.FC = () => {
                 name="restaurantCode"
                 className="rw-input"
                 errorClassName="rw-input rw-input-error"
-                defaultValue={currentUserRestaurant?.name || ''}
+                defaultValue={restaurantData.user?.employee?.restaurant?.name}
                 readOnly
               />
 

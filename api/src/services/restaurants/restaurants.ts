@@ -46,4 +46,7 @@ export const Restaurant: RestaurantRelationResolvers = {
   employee: (_obj, { root }) => {
     return db.restaurant.findUnique({ where: { id: root?.id } }).employee()
   },
+  menuItems: (_obj, { root }) => {
+    return db.restaurant.findUnique({ where: { id: root?.id } }).menuItems()
+  },
 }

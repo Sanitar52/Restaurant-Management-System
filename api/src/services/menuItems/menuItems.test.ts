@@ -35,7 +35,8 @@ describe('menuItems', () => {
         name: 'String',
         logo: 'String',
         description: 'String',
-        quantity: 5124634,
+        quantity: 9321874,
+        price: 6267792.936862782,
       },
     })
 
@@ -43,7 +44,8 @@ describe('menuItems', () => {
     expect(result.name).toEqual('String')
     expect(result.logo).toEqual('String')
     expect(result.description).toEqual('String')
-    expect(result.quantity).toEqual(5124634)
+    expect(result.quantity).toEqual(9321874)
+    expect(result.price).toEqual(6267792.936862782)
   })
 
   scenario('updates a menuItem', async (scenario: StandardScenario) => {

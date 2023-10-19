@@ -8,13 +8,14 @@ export const standard = defineScenario<Prisma.MenuItemCreateArgs>({
         name: 'String',
         logo: 'String',
         description: 'String',
-        quantity: 6925177,
+        quantity: 4490778,
+        price: 1313649.633742018,
         restaurant: {
           create: {
             name: 'String',
             body: 'String',
             logo: 'String',
-            restaurantCode: 2202088,
+            restaurantCode: 8178997,
           },
         },
       },
@@ -24,13 +25,14 @@ export const standard = defineScenario<Prisma.MenuItemCreateArgs>({
         name: 'String',
         logo: 'String',
         description: 'String',
-        quantity: 1511492,
+        quantity: 3093483,
+        price: 3555025.240140037,
         restaurant: {
           create: {
             name: 'String',
             body: 'String',
             logo: 'String',
-            restaurantCode: 5638097,
+            restaurantCode: 1812499,
           },
         },
       },

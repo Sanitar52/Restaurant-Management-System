@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useEffect } from 'react'
 
 import {
@@ -17,6 +17,7 @@ import { useAuth } from 'src/auth'
 
 const SignupPage = () => {
   const { isAuthenticated, signUp } = useAuth()
+  const [isEmployee, setIsEmployee] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -32,11 +33,18 @@ const SignupPage = () => {
 
   const onSubmit = async (data: Record<string, string>) => {
     console.log(data)
-    const response = await signUp({
-      username: data.username,
-      password: data.password,
-      restaurantCode: data.restaurantCode
-    })
+    if (isEmployee && !data.restaurantCode) {
+      toast.error('Restaurant Code is required')
+      return
+    }
+      const response = await signUp({
+        email: data.email,
+        username: data.username,
+        password: data.password,
+        restaurantCode: isEmployee ? data.restaurantCode : null,
+        role: isEmployee ? 'EMPLOYEE' : 'CUSTOMER',
+      })
+  
 
     if (response.message) {
       toast(response.message)
@@ -63,6 +71,26 @@ const SignupPage = () => {
             <div className="rw-segment-main">
               <div className="rw-form-wrapper">
                 <Form onSubmit={onSubmit} className="rw-form-wrapper">
+                <Label
+                    name="email"
+                    className="rw-label"
+                    errorClassName="rw-label rw-label-error"
+                  >
+                    Email Address
+                  </Label>
+                  <TextField
+                    name="email"
+                    className="rw-input"
+                    errorClassName="rw-input rw-input-error"
+                    ref={usernameRef}
+                    validation={{
+                      required: {
+                        value: true,
+                        message: 'Email Address is required',
+                      },
+                    }}
+                  />
+                  <FieldError name="username" className="rw-field-error" />
                   <Label
                     name="username"
                     className="rw-label"
@@ -105,24 +133,40 @@ const SignupPage = () => {
                   />
                   <FieldError name="password" className="rw-field-error" />
                   <Label
-                    name="restaurantCode"
-                    className="rw-label"
-                    errorClassName="rw-label rw-label-error"
-                  >
-                    Restaurant Code
-                  </Label>
-                  <TextField
-                    name="restaurantCode"
-                    className="rw-input"
-                    errorClassName="rw-input rw-input-error"
-                    validation={{
-                      required: {
-                        value: true,
-                        message: 'Restaurant Code is required',
-                      },
-                    }}
-                  />
+                  name="isEmployee"
+                  className="rw-label"
+                  errorClassName="rw-label rw-label-error"
+                >
+                  Are you an employee?
+                </Label>
+                <input
+                  type="checkbox"
+                  name="isEmployee"
+                  className="rw-input"
+                  onChange={() => setIsEmployee(!isEmployee)}
+                />
+                <FieldError name="isEmployee" className="rw-field-error" />
+                {isEmployee && (
+                  <><Label
+                      name="restaurantCode"
+                      className="rw-label"
+                      errorClassName="rw-label rw-label-error"
+                    >
+                      Restaurant Code
+                    </Label><TextField
+                        name="restaurantCode"
+                        className="rw-input"
+                        errorClassName="rw-input rw-input-error"
+                        validation={{
+                          required: {
+                            value: true,
+                            message: 'Restaurant Code is required',
+                          },
+                        }} />
+                
                   <FieldError name="restaurantCode" className="rw-field-error" />
+                  </>
+                  )}
 
                   <div className="rw-button-group">
                     <Submit className="rw-button rw-button-blue">

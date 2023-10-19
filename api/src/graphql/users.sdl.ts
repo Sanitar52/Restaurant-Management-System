@@ -1,8 +1,7 @@
 export const schema = gql`
   type User {
     id: Int!
-    restaurantCode: Int!
-    restaurant: Restaurant!
+    employee: Employee
     name: String
     email: String!
     username: String!
@@ -10,15 +9,24 @@ export const schema = gql`
     salt: String!
     resetToken: String
     resetTokenExpiresAt: DateTime
+    role: Role!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    cartMenuItem: [CartMenuItem]!
+    orders: [Order]!
+  }
+
+  enum Role {
+    ADMIN
+    USER
   }
 
   type Query {
-    users: [User!]! @requireAuth
-    user(id: Int!): User @requireAuth
+    users: [User!]! @skipAuth
+    user(id: Int!): User @skipAuth
   }
 
   input CreateUserInput {
-    restaurantCode: Int!
     name: String
     email: String!
     username: String!
@@ -26,10 +34,10 @@ export const schema = gql`
     salt: String!
     resetToken: String
     resetTokenExpiresAt: DateTime
+    role: Role!
   }
 
   input UpdateUserInput {
-    restaurantCode: Int
     name: String
     email: String
     username: String
@@ -37,6 +45,7 @@ export const schema = gql`
     salt: String
     resetToken: String
     resetTokenExpiresAt: DateTime
+    role: Role
   }
 
   type Mutation {

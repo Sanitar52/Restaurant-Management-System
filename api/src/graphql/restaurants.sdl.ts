@@ -2,6 +2,7 @@ export const schema = gql`
   type Restaurant {
     id: Int!
     employee: [Employee]!
+    menuItems: [MenuItem]!
     name: String!
     body: String!
     logo: String!

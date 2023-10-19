@@ -37,14 +37,14 @@ describe('restaurants', () => {
         name: 'String',
         body: 'String',
         logo: 'String',
-        restaurantCode: 3867122,
+        restaurantCode: 4839374,
       },
     })
 
     expect(result.name).toEqual('String')
     expect(result.body).toEqual('String')
     expect(result.logo).toEqual('String')
-    expect(result.restaurantCode).toEqual(3867122)
+    expect(result.restaurantCode).toEqual(4839374)
   })
 
   scenario('updates a restaurant', async (scenario: StandardScenario) => {

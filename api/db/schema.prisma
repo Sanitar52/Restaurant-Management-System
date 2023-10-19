@@ -21,6 +21,16 @@ model User {
   salt                String
   resetToken          String?
   resetTokenExpiresAt DateTime?
+  role                Role      @default(CUSTOMER)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  cartMenuItem        CartMenuItem[]
+  orders              Order[]
+}
+enum Role {
+  ADMIN
+  EMPLOYEE
+  CUSTOMER
 }
 
 model Employee {
@@ -42,6 +52,17 @@ model Restaurant {
 
 }
 
+enum Category {
+  APPETIZER
+  PIZZA
+  BURGER
+  MAIN_COURSE
+  VEGETARIAN
+  DESSERT
+  COLDDRINKS
+  HOTDRINKS
+}
+
 model MenuItem {
   id Int @id @default(autoincrement())
   restaurantCode  Int
@@ -49,5 +70,41 @@ model MenuItem {
   name String
   logo String
   description String
+  category Category @default(MAIN_COURSE)
   quantity  Int
+  price Float
+  cartMenuItem CartMenuItem[]
+}
+
+model CartMenuItem {
+  id Int @id @default(autoincrement())
+  menuItemId Int
+  menuItem MenuItem @relation(fields:[menuItemId], references: [id])
+  orderPrice Float?
+  quantity Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId Int
+  user User @relation(fields:[userId], references: [id])
+  orderId Int?
+  order Order? @relation(fields:[orderId], references: [id])
+  inCart Boolean @default(true)
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  userId Int
+  user User @relation(fields:[userId], references: [id])
+  cartMenuItemIds Int[]
+  cartMenuItems CartMenuItem[]
+  status OrderStatus @default(PENDING)
+  total Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+}
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
 }
