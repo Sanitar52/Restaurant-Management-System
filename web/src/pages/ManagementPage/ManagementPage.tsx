@@ -34,19 +34,7 @@ const GET_RESTAURANTS = gql`
   }
 `;
 
-const USER_RESTAURANT = gql`
-  query GetCurrentRestaurantName($userId: Int!) {
-  user(id: $userId) {
-    role
-    employee {
-      restaurant {
-        name
-        restaurantCode
-      }
-    }
-  }
-}
-`;
+
 
 const ManagementPage: React.FC =  () => {
 
@@ -54,22 +42,8 @@ const ManagementPage: React.FC =  () => {
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
   const {currentUser, isAuthenticated} = useAuth()
-  const [currentUserRestaurantData, setCurrentUserRestaurantData] = useState<any>(
-    null
-  );
-  const [userRole, setUserRole] = useState<string | null>(null)
   const [allRestaurantsData, setAllRestaurantsData] = useState<any>(null);
-
-  const { loading, error, data: restaurantData } = useQuery(USER_RESTAURANT, {
-    variables: { userId: auth.currentUser ? auth.currentUser.id : 0 },
-  });
-
-  useEffect(() => {
-    if (!loading && !error) {
-      setCurrentUserRestaurantData(restaurantData);
-      setUserRole(restaurantData?.user?.role)
-    }
-  }, [loading, error, restaurantData]);
+  const userRole = currentUser?.role;
   const { loading: loadingRestaurantData, error: restaurantErrorData, data: restaurantsData } = useQuery(GET_RESTAURANTS);
   useEffect(() => {
     if (!loadingRestaurantData && !restaurantErrorData) {
@@ -99,7 +73,7 @@ const ManagementPage: React.FC =  () => {
     const quantity: number = data.quantity;
     const price: number = data.price;
     const restaurantCodeAdmin: number = data.restaurantCode;
-    const restaurantCodeEmployee: number = restaurantData.user?.employee?.restaurant?.restaurantCode;
+    const restaurantCodeEmployee: number = currentUser?.employee?.restaurant?.restaurantCode;
     await create({
       variables: {
         input: {
@@ -314,7 +288,7 @@ const ManagementPage: React.FC =  () => {
                 name="restaurantCode"
                 className="rw-input"
                 errorClassName="rw-input rw-input-error"
-                defaultValue={restaurantData.user?.employee?.restaurant?.name}
+                defaultValue={currentUser?.employee?.restaurant?.name}
                 readOnly
               />
             }

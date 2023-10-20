@@ -1,27 +1,29 @@
 import type {
-  CartMenuItemsByUserVariables,
   Query,
 } from 'types/graphql'
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 import { useState } from 'react'
 
 export const QUERY = gql`
-  query CartMenuItemsByUser($userId: Int!) {
-    cartMenuItemsByUser: cartMenuItemsByUser(userId: $userId) {
-      id
-      userId
-      menuItem {
-        id
-        name
-        description
-        price
-        logo
+  query {
+    me {
+      cartMenuItem {
+        menuItem {
+          category
+          description
+          id
+          logo
+          name
+          price
+        }
+        quantity
+        orderPrice
+        inCart
       }
-      quantity
-
     }
   }
 `
+
 
 export const Loading = () => <div>Loading...</div>
 
@@ -37,14 +39,14 @@ export const Failure = ({ error }: CellFailureProps) => (
   </div>
 )
 
-export const Success = ({ user }: CellSuccessProps<Query>) => {
-  const [cart, setCart] = useState(user.cartMenuItem || [])
+export const Success = ({ me }: CellSuccessProps<Query>) => {
+  const [cart, setCart] = useState(me?.cartMenuItem || [])
 
   const handleQuantityChange = (index: number, newQuantity: number) => {
     const updatedCart = [...cart]
     updatedCart[index] = {
       ...updatedCart[index],
-      quantity: newQuantity,
+      quantity: newQuantity !== 0 ? newQuantity : 1,
     }
     setCart(updatedCart)
   }
@@ -58,13 +60,13 @@ export const Success = ({ user }: CellSuccessProps<Query>) => {
   }
 
   return (
-    <div className="border border-gray-300 p-4">
+    <div className="border border-gray-600 p-4">
       {cart.map((cartItem, i) => (
         <div key={i} className="mb-4 flex items-center">
           <img
             src={cartItem.menuItem.logo}
             alt={cartItem.menuItem.name}
-            className="mr-4 h-20 w-20"
+            className="mr-4 h-28 w-28"
           />
           <div className="flex flex-1 flex-col">
             <p className="text-xl font-bold">{cartItem.menuItem.name}</p>
@@ -79,7 +81,7 @@ export const Success = ({ user }: CellSuccessProps<Query>) => {
             </button>
             <input
               type="number"
-              className="w-16 appearance-none bg-gray-100 px-2 py-1 text-center"
+              className="w-20 appearance-none bg-gray-100 px-2 py-1 text-center"
               value={cartItem.quantity}
               min="1"
               onChange={(e) =>
