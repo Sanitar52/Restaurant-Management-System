@@ -15,6 +15,11 @@ export const restaurant: QueryResolvers['restaurant'] = ({ id }) => {
     where: { id },
   })
 }
+export const restaurantByName: QueryResolvers['restaurantByName'] = ({ name }) => {
+  return db.restaurant.findMany({
+    where: { name },
+  })
+}
 
 export const createRestaurant: MutationResolvers['createRestaurant'] = ({
   input,

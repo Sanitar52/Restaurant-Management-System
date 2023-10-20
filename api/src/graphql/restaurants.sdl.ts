@@ -12,6 +12,7 @@ export const schema = gql`
   type Query {
     restaurants: [Restaurant!]! @skipAuth
     restaurant(id: Int!): Restaurant @skipAuth
+    restaurantByName(name: String!): [Restaurant!]! @skipAuth
   }
 
   input CreateRestaurantInput {

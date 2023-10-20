@@ -27,7 +27,7 @@ const Routes = () => {
         <Route path="/signup" page={SignupPage} name="signup" />
         <Route path="/forgot-password" page={ForgotPasswordPage} name="forgotPassword" />
         <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
-        <Route path="/restaurant/{id:Int}" page={RestaurantPage} name="restaurant" />
+        <Route path="/restaurant/{name:String}" page={RestaurantPage} name="restaurant" />
       </Set>
         <Route notfound page={NotFoundPage} />
       

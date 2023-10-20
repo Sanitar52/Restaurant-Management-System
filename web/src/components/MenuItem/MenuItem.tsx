@@ -1,7 +1,7 @@
 import { Toaster, toast } from "@redwoodjs/web/dist/toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "src/auth";
-
+import { useMutation } from '@redwoodjs/web'
 interface Props {
   menuItem: {
     category: string;
@@ -14,18 +14,50 @@ interface Props {
     quantity: number;
   };
 }
-
+const createCartMenuItem = gql `mutation MyMutation($input: CreateCartMenuItemInput!) { 
+  createCartMenuItem(input: $input) {
+    menuItemId
+    quantity
+  }
+}`
 const MenuItem = ({ menuItem }: Props) => {
+  useEffect (() => {
+    const startTime = Date.now()
+    return () => {
+      console.log(Date.now() - startTime)
+    }
+  }
+  )
   const { isAuthenticated, getToken, currentUser } = useAuth()
+  const [create, { loading, error }] = useMutation(createCartMenuItem)
   const [isItemInCart, setIsItemInCart] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const totPrice = quantity * menuItem.price
-
+  
   const handleAddToCart = async () => {
     if (isAuthenticated) {
       toast.success('Eşya başarıyla sepete eklendi')
-      const menuItemId = menuItem.id
       try {
+        await create({
+          variables: {
+            input: {
+              menuItemId: menuItem.id,
+              quantity: quantity,
+              userId: currentUser.id,
+              inCart: true,
+              orderPrice: totPrice
+            }
+
+          }
+
+        })
+        
+
+      } catch (error) {
+        console.log(error)
+      }
+      
+      /* try {
         const response = await fetch('/api/graphql', {
           method: 'POST',
           headers: {
@@ -56,11 +88,11 @@ const MenuItem = ({ menuItem }: Props) => {
         }
       } catch (error) {
         console.error(error)
-      }
+      }*/
     } else {
       // Display login message
       toast.error('Sepete ekleme işlemi için giriş yapmalısınız.')
-    }
+    } 
   }
 
   const handleQuantityChange = (event) => {

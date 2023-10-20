@@ -17,6 +17,7 @@ export const schema = gql`
   type Query {
     cartMenuItems: [CartMenuItem!]! @requireAuth
     cartMenuItem(id: Int!): CartMenuItem @requireAuth
+    cartMenuItemsByUser(userId: Int!): [CartMenuItem!]! @requireAuth
   }
 
   input CreateCartMenuItemInput {

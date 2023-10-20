@@ -40,7 +40,7 @@ export const Success = ({
       {restaurants.map((restaurant) => {
         return (
           <div className="mr-12 hover:bg-gray-200 transition-colors duration-300 ease-in-out" key={restaurant.id}>
-          <Link to={routes.restaurant({ id: restaurant.id })}>
+          <Link to={routes.restaurant({ name:restaurant.name })}>
             <Restaurant restaurant={restaurant} />
           </Link>
         </div>

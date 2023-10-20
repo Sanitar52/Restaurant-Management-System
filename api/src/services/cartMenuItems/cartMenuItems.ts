@@ -9,12 +9,18 @@ import { db } from 'src/lib/db'
 export const cartMenuItems: QueryResolvers['cartMenuItems'] = () => {
   return db.cartMenuItem.findMany()
 }
+export const cartMenuItemsByUser: QueryResolvers['cartMenuItemsByUser'] = ({ userId }) => {
+  return db.cartMenuItem.findMany({
+    where: { userId },
+  })
+}
 
 export const cartMenuItem: QueryResolvers['cartMenuItem'] = ({ id }) => {
   return db.cartMenuItem.findUnique({
     where: { id },
   })
 }
+
 
 export const createCartMenuItem: MutationResolvers['createCartMenuItem'] = ({
   input,

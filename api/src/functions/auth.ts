@@ -117,6 +117,7 @@ export const handler = async (
           // name: userAttributes.name
         },
       })
+      if (userAttributes.restaurantCode == null) return user
       await db.employee.create({data: {
         restaurantCode: parseInt(userAttributes.restaurantCode),
         userid: user.id,

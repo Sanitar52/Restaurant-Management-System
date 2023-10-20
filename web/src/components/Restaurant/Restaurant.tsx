@@ -15,7 +15,7 @@ const Restaurant = ({ restaurant }: Props) => {
   return (
     <>
       <Toaster toastOptions={{ className: 'rw-toast', duration: 2000 }} />
-      <Link to={routes.restaurant({ id: restaurant.id })} className="max-w-sm overflow-hidden rounded shadow-lg">
+      <Link to={routes.restaurant({ name: restaurant.name })} className="max-w-sm overflow-hidden rounded shadow-lg">
         <div className="max-w-sm overflow-hidden rounded shadow-lg hover:bg-gray-200 transition-colors duration-300 ease-in-out">
           <img
             className="h-[300px] w-[500px] hover:bg-gray-200 transition-colors duration-300 ease-in-out"

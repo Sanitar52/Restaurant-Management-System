@@ -8,48 +8,18 @@ type HeaderLayoutProps = {
   children?: React.ReactNode;
 };
 
-const GET_USER_INFO = gql`
-  query GetUserInfo($userId: Int!) {
-    user(id: $userId) {
-      name
-      username
-      email
-    }
-  }
-`;
-
 const HeaderLayout = ({ children }: HeaderLayoutProps) => {
-  const auth = useAuth();
   const { isAuthenticated, currentUser, logOut } = useAuth();
   const [currentUserData, setCurrentUserData] = useState<any>(null);
-  const { loading, error, data: userData } = useQuery(GET_USER_INFO, {
-    variables: { userId: auth.currentUser ? auth.currentUser.id : 1 },
-  });
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown visibility
 
-  useEffect(() => {
-    if (!loading && !error) {
-      setCurrentUserData(userData);
-    }
-  }, [loading, error, userData]);
-  console.log(currentUserData)
-
-
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
   const handleLogout = async () => {
-    // You can implement your logout logic here, e.g., calling an API endpoint
-    // to invalidate the user's session and clear the authentication token.
-    // After that, you can redirect the user to the login page or perform any
-    // other necessary actions.
-
     try {
-      // Call your logout API or clear the authentication token
-      // Example: await api.logout();
-
-      // After successful logout, you can redirect the user to the login page
-      // Example: router.push('/login');
-
-      // Alternatively, you can call the `logout` method from your authentication library
-      await auth.logOut();
+      await logOut();
     } catch (error) {
       console.error('Logout failed:', error);
       // Handle logout error as needed
@@ -66,10 +36,45 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
             </div>
             <ul className="flex space-x-4">
               {/* Display the current user's name if authenticated */}
-              {auth.isAuthenticated ? (
-                <li className="text-white">{
-                  currentUserData?.user?.username
-                }</li>
+              {isAuthenticated ? (
+                <li className="relative">
+                  <button
+                    className="text-white cursor-pointer"
+                    onClick={toggleDropdown}
+                  >
+                    {currentUser?.username}
+                  </button>
+                  {isDropdownOpen && (
+                    <div
+                      id="dropdownInformation"
+                      className="z-10 absolute bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
+                    >
+                      <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                        <div>{currentUser?.username}</div>
+                        <div className="font-medium truncate">
+                          {currentUser?.email}
+                        </div>
+                      </div>
+                      <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownInformationButton">
+                        <li>
+                          <a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li>
+                          <a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</a>
+                        </li>
+                        <li>
+                          <a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Management</a>
+                        </li>
+                        <li>
+                          <a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Your Restaurant</a>
+                        </li>
+                      </ul>
+                      <div className="py-2">
+                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white" onClick={handleLogout}>Sign out</a>
+                      </div>
+                    </div>
+                  )}
+                </li>
               ) : null}
               <li className="text-white">
                 <Link to="/restaurant">Restaurants</Link>
@@ -77,7 +82,7 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
               <li className="text-white">
                 <Link to="/management">Management</Link>
               </li>
-              {!auth.isAuthenticated ? (
+              {!isAuthenticated ? (
                 <>
                   <li className="text-white">
                     <Link to="/signup">Sign Up</Link>
@@ -89,7 +94,7 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
               ) : null}
 
               {/* Display the Logout button if authenticated */}
-              {auth.isAuthenticated ? (
+              {isAuthenticated ? (
                 <li>
                   <button
                     className="text-white"

@@ -25,9 +25,19 @@ const CREATE_MENU_ITEM = gql`
     }
   }
 `;
+const GET_RESTAURANTS = gql`
+  query GetRestaurants {
+    restaurants {
+      name
+      restaurantCode
+    }
+  }
+`;
+
 const USER_RESTAURANT = gql`
   query GetCurrentRestaurantName($userId: Int!) {
   user(id: $userId) {
+    role
     employee {
       restaurant {
         name
@@ -38,23 +48,38 @@ const USER_RESTAURANT = gql`
 }
 `;
 
-const ManagementPage: React.FC=  () => {
+const ManagementPage: React.FC =  () => {
+
   const [showPopup, setShowPopup] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
+  const {currentUser, isAuthenticated} = useAuth()
   const [currentUserRestaurantData, setCurrentUserRestaurantData] = useState<any>(
     null
   );
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [allRestaurantsData, setAllRestaurantsData] = useState<any>(null);
 
   const { loading, error, data: restaurantData } = useQuery(USER_RESTAURANT, {
-    variables: { userId: auth.currentUser ? auth.currentUser.id : null },
+    variables: { userId: auth.currentUser ? auth.currentUser.id : 0 },
   });
 
   useEffect(() => {
     if (!loading && !error) {
       setCurrentUserRestaurantData(restaurantData);
+      setUserRole(restaurantData?.user?.role)
     }
   }, [loading, error, restaurantData]);
+  const { loading: loadingRestaurantData, error: restaurantErrorData, data: restaurantsData } = useQuery(GET_RESTAURANTS);
+  useEffect(() => {
+    if (!loadingRestaurantData && !restaurantErrorData) {
+      setAllRestaurantsData(restaurantsData);
+    }
+
+  } , [loadingRestaurantData, restaurantErrorData, restaurantsData])
+
+
+
   const openPopup = (formType: string) => {
     setShowPopup(formType);
   };
@@ -69,17 +94,19 @@ const ManagementPage: React.FC=  () => {
   >(CREATE_MENU_ITEM);
 
   const onSubmit: SubmitHandler<CreateMenuItemInput> = async (data) => {
-  
+
     setIsLoading(true)
     const quantity: number = data.quantity;
     const price: number = data.price;
+    const restaurantCodeAdmin: number = data.restaurantCode;
+    const restaurantCodeEmployee: number = restaurantData.user?.employee?.restaurant?.restaurantCode;
     await create({
       variables: {
         input: {
           ...data,
           quantity: parseInt(quantity.toString(), 10),
           price: parseFloat(price.toString()),
-          restaurantCode: restaurantData.user?.employee?.restaurant?.restaurantCode || 0, // Use the restaurant code from the user's restaurant
+          restaurantCode: userRole === 'EMPLOYEE' ? parseInt(restaurantCodeEmployee.toString()) : userRole ==='ADMIN' ? parseInt(restaurantCodeAdmin.toString()) : 0, // Use the restaurant code from the user's restaurant
         },
       },
     })
@@ -97,12 +124,17 @@ const ManagementPage: React.FC=  () => {
   return (
     <>
       <MetaTags title="Management" description="Management page" />
+      <div className="flex items-center mb-4 text-yellow-300">
       <button
         onClick={() => openPopup('Menu')}
-        className="button-primary-lg mb-4"
+        className="h-auto max-w-lg mx-auto button-primary-lg mb-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
+        <svg className="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
+    <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z"/>
+  </svg>
         Menu
       </button>
+      </div>
       {showPopup && (
         <div className="fixed inset-0 z-60 flex items-center justify-center">
           <div className="bg-white rounded-lg p-8 shadow-md">{renderPopup()}</div>
@@ -254,6 +286,30 @@ const ManagementPage: React.FC=  () => {
               >
                 Restaurant
               </Label>
+              {userRole === 'ADMIN' && (
+                <SelectField
+                  name="restaurantCode"
+                  className="rw-input"
+                  errorClassName="rw-input rw-input-error"
+                  validation={{
+                    required: {
+                      value: true,
+                      message: 'Restaurant is required',
+                    },
+                  }}
+                >
+                  <option value="0">Select a restaurant</option>
+                  {allRestaurantsData?.restaurants.map(
+                    (restaurant: any) => (
+                      <option value={restaurant.restaurantCode}>
+                        {restaurant.name}
+                      </option>
+                    )
+                  )}
+                </SelectField>
+              )
+                  }
+                  {userRole ==='EMPLOYEE' &&
               <TextField
                 name="restaurantCode"
                 className="rw-input"
@@ -261,6 +317,7 @@ const ManagementPage: React.FC=  () => {
                 defaultValue={restaurantData.user?.employee?.restaurant?.name}
                 readOnly
               />
+            }
 
               <div className="rw-button-group">
                 <Submit

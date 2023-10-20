@@ -1,6 +1,6 @@
 import { render } from '@redwoodjs/testing/web'
-import { Loading, Empty, Failure, Success } from './MenuItemCell'
-import { standard } from './MenuItemCell.mock'
+import { Loading, Empty, Failure, Success } from './CartMenuItemCell'
+import { standard } from './CartMenuItemCell.mock'
 
 // Generated boilerplate tests do not account for all circumstances
 // and can fail without adjustments, e.g. Float and DateTime types.
@@ -8,7 +8,7 @@ import { standard } from './MenuItemCell.mock'
 //        https://redwoodjs.com/docs/testing#testing-cells
 // https://redwoodjs.com/docs/testing#jest-expect-type-considerations
 
-describe('MenuItemCell', () => {
+describe('CartMenuItemCell', () => {
   it('renders Loading successfully', () => {
     expect(() => {
       render(<Loading />)
@@ -35,7 +35,7 @@ describe('MenuItemCell', () => {
 
   it('renders Success successfully', async () => {
     expect(() => {
-      render(<Success menuItem={standard().menuItem} />)
+      render(<Success cartMenuItem={standard().cartMenuItem} />)
     }).not.toThrow()
   })
 })

@@ -44,11 +44,11 @@ const LoginPage = () => {
       } else {
         toast.success('Welcome back!');
         setIsLoading(false)
-        routes.home()
+        navigate('/')
       }
     } finally {
       setIsLoading(false); // Set loading state to false when login finishes
-      routes.home()
+      navigate('/')
     }
   };
 
