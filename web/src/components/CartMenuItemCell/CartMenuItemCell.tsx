@@ -1,8 +1,10 @@
 import type {
   Query,
 } from 'types/graphql'
-import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
+import { type CellSuccessProps, type CellFailureProps, useMutation } from '@redwoodjs/web'
 import { useState } from 'react'
+import { toast } from '@redwoodjs/web/dist/toast'
+import { UpdateCartMenuItemInput } from 'types/graphql'
 
 export const QUERY = gql`
   query {
@@ -20,6 +22,15 @@ export const QUERY = gql`
         orderPrice
         inCart
       }
+    }
+  }
+`
+const UPDATE_CART_MENU_ITEM_MUTATION = gql`
+  mutation UpdateCartMenuItemMutation($id: Int!, $input: UpdateCartMenuItemInput!) {
+    updateCartMenuItem(id: $id, input: $input) {
+      id
+      quantity
+      inCart
     }
   }
 `
@@ -41,12 +52,57 @@ export const Failure = ({ error }: CellFailureProps) => (
 
 export const Success = ({ me }: CellSuccessProps<Query>) => {
   const [cart, setCart] = useState(me?.cartMenuItem || [])
+  const [updateCartMenuItem] = useMutation(UPDATE_CART_MENU_ITEM_MUTATION, {
+    onCompleted: () => {
+      toast.success('Cart item updated');
+    },
+    onError: (error) => {
+      toast.error('Failed to update cart item');
+      console.error(error);
+    },
+  });
+  const handleUpdateCartItem = async (cartItemId: number, input: UpdateCartMenuItemInput) => {
+    console.log('cartItemId:', cartItemId);
+    try {
+      const id = cartItemId as number
+      const { data } = await updateCartMenuItem({
+        variables: {
+          id: id,
+          input: input,
+        },
+      });
+
+      // Handle the updated cart item data if needed.
+      console.log('Updated cart item:', data.updateCartMenuItem);
+    } catch (error) {
+      console.error('Error updating cart item:', error);
+    }
+  };
+  const updateAllCartItems = async () => {
+    for (const cartItem of cart) {
+      const Id: number = cartItem.id as number;
+      await handleUpdateCartItem(Id, {
+            quantity: cartItem.quantity as number,
+            orderPrice: cartItem.menuItem.price * cartItem.quantity,
+            inCart: cartItem.quantity > 0 ? true : false,
+            menuItemId: cartItem.menuItem.id as number,
+            userId: me?.id as number,
+            orderId: cartItem.orderId as number,
+
+      });
+    }
+  };
+
+
+
+
+
 
   const handleQuantityChange = (index: number, newQuantity: number) => {
     const updatedCart = [...cart]
     updatedCart[index] = {
       ...updatedCart[index],
-      quantity: newQuantity !== 0 ? newQuantity : 1,
+      quantity: newQuantity <= 0 ? 0 : newQuantity,
     }
     setCart(updatedCart)
   }
@@ -58,6 +114,8 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
     })
     return totalPrice
   }
+
+
 
   return (
     <div className="border border-gray-600 p-4">
@@ -101,11 +159,19 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
           </div>
         </div>
       ))}
-      <div className="mt-4 flex justify-end">
-        <p className="text-xl font-bold">
-          Total Price: {calculateTotalPrice()}
-        </p>
-      </div>
+      <div className="mt-4 flex flex-col items-end">
+  <p className="text-xl font-bold mb-4">
+    Total Price: {calculateTotalPrice()}
+  </p>
+  <button type="button" className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+onClick={
+  async () => {
+    await updateAllCartItems()
+  }
+
+}>Satın Al</button>
+</div>
+
     </div>
   )
 }
