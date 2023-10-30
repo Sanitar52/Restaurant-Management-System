@@ -17,7 +17,7 @@ import {
   CreateMenuItemInputVariables,
   User,
 } from 'types/graphql';
-
+import OrdersCell from 'src/components/OrdersCell';
 const CREATE_MENU_ITEM = gql`
   mutation CreateMenuItemInput($input: CreateMenuItemInput!) {
     createMenuItem(input: $input) {
@@ -34,14 +34,20 @@ const GET_RESTAURANTS = gql`
   }
 `;
 
+const CREATE_RESTAURANT = gql`
+  mutation CreateRestaurant($input: CreateRestaurantInput!) {
+    createRestaurant(input: $input) {
+      id
+    }
+  }
+`;
 
-
-const ManagementPage: React.FC =  () => {
+const ManagementPage: React.FC = () => {
 
   const [showPopup, setShowPopup] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
-  const {currentUser, isAuthenticated} = useAuth()
+  const { currentUser, isAuthenticated } = useAuth()
   const [allRestaurantsData, setAllRestaurantsData] = useState<any>(null);
   const userRole = currentUser?.role;
   const { loading: loadingRestaurantData, error: restaurantErrorData, data: restaurantsData } = useQuery(GET_RESTAURANTS);
@@ -50,7 +56,7 @@ const ManagementPage: React.FC =  () => {
       setAllRestaurantsData(restaurantsData);
     }
 
-  } , [loadingRestaurantData, restaurantErrorData, restaurantsData])
+  }, [loadingRestaurantData, restaurantErrorData, restaurantsData])
 
 
 
@@ -80,7 +86,7 @@ const ManagementPage: React.FC =  () => {
           ...data,
           quantity: parseInt(quantity.toString(), 10),
           price: parseFloat(price.toString()),
-          restaurantCode: userRole === 'EMPLOYEE' ? parseInt(restaurantCodeEmployee.toString()) : userRole ==='ADMIN' ? parseInt(restaurantCodeAdmin.toString()) : 0, // Use the restaurant code from the user's restaurant
+          restaurantCode: userRole === 'EMPLOYEE' ? parseInt(restaurantCodeEmployee.toString()) : userRole === 'ADMIN' ? parseInt(restaurantCodeAdmin.toString()) : 0, // Use the restaurant code from the user's restaurant
         },
       },
     })
@@ -92,22 +98,31 @@ const ManagementPage: React.FC =  () => {
         toast.error('Error creating menu item');
         console.error(error);
       });
-      setIsLoading(false);
+    setIsLoading(false);
   };
 
   return (
     <>
       <MetaTags title="Management" description="Management page" />
       <div className="flex items-center mb-4 text-yellow-300">
-      <button
-        onClick={() => openPopup('Menu')}
-        className="h-auto max-w-lg mx-auto button-primary-lg mb-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-      >
-        <svg className="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
-    <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z"/>
-  </svg>
-        Menu
-      </button>
+        <button
+          onClick={() => openPopup('Menu')}
+          className="h-auto max-w-lg mx-auto button-primary-lg mb-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          <svg className="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
+            <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z" />
+          </svg>
+          Menu Ekle
+        </button>
+        <button
+          onClick={() => openPopup('Orders')}
+          className="h-auto max-w-lg mx-auto button-primary-lg mb-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          <svg className="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
+            <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z" />
+          </svg>
+          Siparişlere bak
+        </button>
       </div>
       {showPopup && (
         <div className="fixed inset-0 z-60 flex items-center justify-center">
@@ -163,25 +178,25 @@ const ManagementPage: React.FC =  () => {
               />
               <FieldError name="description" className="rw-field-error" />
               <Label
-                    name="logo"
-                    className="rw-label"
-                    errorClassName="rw-label rw-label-error"
-                  >
-                    logo
-                  </Label>
-                  <TextField
-                    name="logo"
-                    className="rw-input"
-                    errorClassName="rw-input rw-input-error"
-                    validation={{
-                      required: {
-                        value: true,
-                        message: 'Logo is required',
-                      },
-                    }}
-                  />
+                name="logo"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                logo
+              </Label>
+              <TextField
+                name="logo"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Logo is required',
+                  },
+                }}
+              />
 
-                  <FieldError name="logo" className="rw-field-error" />
+              <FieldError name="logo" className="rw-field-error" />
 
               <Label
                 name="quantity"
@@ -282,22 +297,21 @@ const ManagementPage: React.FC =  () => {
                   )}
                 </SelectField>
               )
-                  }
-                  {userRole ==='EMPLOYEE' &&
-              <TextField
-                name="restaurantCode"
-                className="rw-input"
-                errorClassName="rw-input rw-input-error"
-                defaultValue={currentUser?.employee?.restaurant?.name}
-                readOnly
-              />
-            }
+              }
+              {userRole === 'EMPLOYEE' &&
+                <TextField
+                  name="restaurantCode"
+                  className="rw-input"
+                  errorClassName="rw-input rw-input-error"
+                  defaultValue={currentUser?.employee?.restaurant?.name}
+                  readOnly
+                />
+              }
 
               <div className="rw-button-group">
                 <Submit
-                  className={`rw-button rw-button-blue ${
-                    isLoading ? 'rw-loading' : ''
-                  }`}
+                  className={`rw-button rw-button-blue ${isLoading ? 'rw-loading' : ''
+                    }`}
                   disabled={isLoading}
                 >
                   {isLoading ? 'Submitting ...' : 'Submit'}
@@ -308,6 +322,16 @@ const ManagementPage: React.FC =  () => {
               Close
             </button>
           </div>
+        );
+      case 'Orders':
+        return (
+        <div className="popup">
+          <OrdersCell />
+          <h1>Orders</h1>
+          <button onClick={closePopup} className="button-secondary mt-4">
+            Close
+          </button>
+        </div>
         );
       default:
         return null;

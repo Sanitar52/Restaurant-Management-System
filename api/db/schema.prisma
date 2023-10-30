@@ -12,21 +12,22 @@ generator client {
 // to create migrations for them and apply to your dev DB.
 // TODO: Please remove the following example:
 model User {
-  id                  Int       @id @default(autoincrement())
+  id                  Int            @id @default(autoincrement())
   employee            Employee?
   name                String?
-  email               String    @unique
-  username            String    @unique
+  email               String         @unique
+  username            String         @unique
   hashedPassword      String
   salt                String
   resetToken          String?
   resetTokenExpiresAt DateTime?
-  role                Role      @default(CUSTOMER)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  role                Role           @default(CUSTOMER)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
   cartMenuItem        CartMenuItem[]
   orders              Order[]
 }
+
 enum Role {
   ADMIN
   EMPLOYEE
@@ -34,22 +35,21 @@ enum Role {
 }
 
 model Employee {
-  id           Int        @id @default(autoincrement())
-  userid       Int        @unique
+  id             Int        @id @default(autoincrement())
+  userid         Int        @unique
   restaurantCode Int
-  user         User       @relation(fields: [userid], references: [id])
-  restaurant   Restaurant @relation(fields: [restaurantCode], references: [restaurantCode])
+  user           User       @relation(fields: [userid], references: [id])
+  restaurant     Restaurant @relation(fields: [restaurantCode], references: [restaurantCode])
 }
 
 model Restaurant {
-  id          Int        @id @default(autoincrement())
-  employee        Employee[]
-  menuItems   MenuItem[]
-  name        String
-  body        String
-  logo        String
-  restaurantCode        Int   @unique
-
+  id             Int        @id @default(autoincrement())
+  employee       Employee[]
+  menuItems      MenuItem[]
+  name           String
+  body           String
+  logo           String
+  restaurantCode Int        @unique
 }
 
 enum Category {
@@ -64,45 +64,45 @@ enum Category {
 }
 
 model MenuItem {
-  id Int @id @default(autoincrement())
-  restaurantCode  Int
-  restaurant Restaurant @relation(fields:[restaurantCode], references: [restaurantCode])
-  name String
-  logo String
-  description String
-  category Category @default(MAIN_COURSE)
-  quantity  Int
-  price Float
-  cartMenuItem CartMenuItem[]
+  id             Int            @id @default(autoincrement())
+  restaurantCode Int
+  restaurant     Restaurant     @relation(fields: [restaurantCode], references: [restaurantCode])
+  name           String
+  logo           String
+  description    String
+  category       Category       @default(MAIN_COURSE)
+  quantity       Int
+  price          Float
+  cartMenuItem   CartMenuItem[]
 }
 
 model CartMenuItem {
-  id Int @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   menuItemId Int
-  menuItem MenuItem @relation(fields:[menuItemId], references: [id])
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
   orderPrice Float?
-  quantity Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId Int
-  user User @relation(fields:[userId], references: [id])
-  orderId Int?
-  order Order? @relation(fields:[orderId], references: [id])
-  inCart Boolean @default(true)
+  quantity   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  orderId    Int?
+  order      Order?   @relation(fields: [orderId], references: [id])
+  inCart     Boolean  @default(true)
 }
 
 model Order {
-  id Int @id @default(autoincrement())
-  userId Int
-  user User @relation(fields:[userId], references: [id])
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  user            User           @relation(fields: [userId], references: [id])
   cartMenuItemIds Int[]
-  cartMenuItems CartMenuItem[]
-  status OrderStatus @default(PENDING)
-  total Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  cartMenuItems   CartMenuItem[]
+  status          OrderStatus    @default(PENDING)
+  total           Float
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 }
+
 enum OrderStatus {
   PENDING
   COMPLETED
