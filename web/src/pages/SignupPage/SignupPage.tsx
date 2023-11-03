@@ -8,6 +8,7 @@ import {
   PasswordField,
   FieldError,
   Submit,
+  set,
 } from '@redwoodjs/forms'
 import { Link, navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
@@ -33,18 +34,21 @@ const SignupPage = () => {
 
   const onSubmit = async (data: Record<string, string>) => {
     console.log(data)
+    console.log(isEmployee)
     if (isEmployee && !data.restaurantCode) {
       toast.error('Restaurant Code is required')
       return
     }
       const response = await signUp({
+        name: data.username,
         email: data.email,
         username: data.username,
         password: data.password,
         restaurantCode: isEmployee ? data.restaurantCode : null,
         role: isEmployee ? 'EMPLOYEE' : 'CUSTOMER',
       })
-  
+      setIsEmployee(false)
+
 
     if (response.message) {
       toast(response.message)
@@ -163,7 +167,7 @@ const SignupPage = () => {
                             message: 'Restaurant Code is required',
                           },
                         }} />
-                
+
                   <FieldError name="restaurantCode" className="rw-field-error" />
                   </>
                   )}

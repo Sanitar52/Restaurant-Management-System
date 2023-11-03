@@ -4,6 +4,8 @@ import { DbAuthHandler, DbAuthHandlerOptions } from '@redwoodjs/auth-dbauth-api'
 
 import { db } from 'src/lib/db'
 
+import { Role } from '@prisma/client'
+
 export const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
@@ -108,16 +110,20 @@ export const handler = async (
     // If this returns anything else, it will be returned by the
     // `signUp()` function in the form of: `{ message: 'String here' }`.
     handler: async ({ username, hashedPassword, salt, userAttributes }) => {
+
+
       var user = await db.user.create({
         data: {
+          name: userAttributes.name,
           username: username,
-          email:username,
+          email:userAttributes.email,
           hashedPassword: hashedPassword,
           salt: salt,
+          role: userAttributes.role === "EMPLOYEE" ? Role.EMPLOYEE : Role.CUSTOMER,
           // name: userAttributes.name
         },
       })
-      if (userAttributes.restaurantCode == null) return user
+      if (userAttributes.restaurantCode == null || userAttributes.restaurantCode === "" || userAttributes.restaurantCode === undefined) return user
       await db.employee.create({data: {
         restaurantCode: parseInt(userAttributes.restaurantCode),
         userid: user.id,

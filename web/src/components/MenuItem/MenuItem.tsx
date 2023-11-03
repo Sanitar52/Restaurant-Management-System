@@ -14,7 +14,7 @@ interface Props {
     quantity: number;
   };
 }
-const createCartMenuItem = gql `mutation MyMutation($input: CreateCartMenuItemInput!) { 
+const createCartMenuItem = gql `mutation MyMutation($input: CreateCartMenuItemInput!) {
   createCartMenuItem(input: $input) {
     menuItemId
     quantity
@@ -33,7 +33,7 @@ const MenuItem = ({ menuItem }: Props) => {
   const [isItemInCart, setIsItemInCart] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const totPrice = quantity * menuItem.price
-  
+
   const handleAddToCart = async () => {
     if (isAuthenticated) {
       toast.success('Eşya başarıyla sepete eklendi')
@@ -51,12 +51,12 @@ const MenuItem = ({ menuItem }: Props) => {
           }
 
         })
-        
+
 
       } catch (error) {
         console.log(error)
       }
-      
+
       /* try {
         const response = await fetch('/api/graphql', {
           method: 'POST',
@@ -92,7 +92,7 @@ const MenuItem = ({ menuItem }: Props) => {
     } else {
       // Display login message
       toast.error('Sepete ekleme işlemi için giriş yapmalısınız.')
-    } 
+    }
   }
 
   const handleQuantityChange = (event) => {

@@ -92,16 +92,27 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
       console.error(error);
     },
   });
-  const handleDeleteCartItem = (cartItemId: number) => {
+  const handleDeleteCartItem = (cartItemId: number, buying: boolean) => {
     // Store the cart item ID to be deleted in the ref
     cartItemIdToDelete.current = cartItemId;
     // Open the confirmation dialog
-    setConfirmDialogOpen(true);
+    if(buying){
+      alert('Siparişiniz alındı');
+    }
+    else {setConfirmDialogOpen(true);}
+
   };
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async (buying: boolean) => {
     try {
-      if (cartItemIdToDelete.current !== null) {
+      if (buying) {
+        cart.forEach(async (cartItem) => await deleteCartMenuItem({
+          variables: {
+            id: cartItem.id,
+          },
+          }))
+      }
+      else if (cartItemIdToDelete.current !== null) {
         const id = cartItemIdToDelete.current as number;
         await deleteCartMenuItem({
           variables: {
@@ -207,7 +218,7 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
 
 
     if (newQuantity <= 0) {
-      handleDeleteCartItem(updatedCart[index].id as number)
+      handleDeleteCartItem(updatedCart[index].id as number, false)
     }
 
 
@@ -235,7 +246,7 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
             fill="none"
             viewBox="0 0 18 20"
             stroke="currentColor"
-            onClick={() => handleDeleteCartItem(cartItem.id as number)}
+            onClick={() => handleDeleteCartItem(cartItem.id as number, false)}
           >
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z"/>
           </svg>
@@ -285,8 +296,10 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
         </p>
         <button type="button" className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
           onClick={() => {
-            alert('Siparişiniz alındı'),
-              handleOrderCreate()
+            alert('Siparişiniz alındı');
+            handleOrderCreate();
+            cart.forEach((cartItem) => handleConfirmDelete(true as boolean))
+              setCart([])
           }}>Satın Al</button>
       </div>
       {/* Confirmation Dialog */}
@@ -302,7 +315,7 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
     <div className="flex justify-center space-x-4">
       <button
         className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-green-300"
-        onClick={handleConfirmDelete}
+        onClick={() => handleConfirmDelete(false)}
       >
         Evet
       </button>

@@ -9,9 +9,12 @@ type HeaderLayoutProps = {
 };
 
 const HeaderLayout = ({ children }: HeaderLayoutProps) => {
-  const { isAuthenticated, currentUser, logOut } = useAuth();
+  const { isAuthenticated, currentUser, logOut, userMetadata } = useAuth();
   const [currentUserData, setCurrentUserData] = useState<any>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown visibility
+  const [cartMenuItemLength, setCartMenuItemLength] = useState<number>(0); // State to track cartMenuItem length
+
+
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -25,6 +28,10 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
       // Handle logout error as needed
     }
   };
+  useEffect(() => {
+    // Update cartMenuItemLength when currentUser's cartMenuItem changes
+    setCartMenuItemLength(currentUser?.cartMenuItem.length || 0);
+  }, [currentUser?.cartMenuItem]);
 
   return (
     <>
@@ -76,12 +83,18 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
                   )}
                 </li>
               ) : null}
-              <li className="text-white">
-                <Link to="/restaurant">Restaurants</Link>
-              </li>
-              <li className="text-white">
-                <Link to="/management">Management</Link>
-              </li>
+              {currentUser?.role=== 'EMPLOYEE' ? (
+                <><li className="text-white">
+                  <Link to="/restaurant">Take Order</Link>
+                </li><li className="text-white">
+                    <Link to="/management">Orders</Link>
+                  </li></>
+              ) : <><li className="text-white">
+                  <Link to="/restaurant">Restaurants</Link>
+                </li><li className="text-white">
+                    <Link to="/management">Management</Link>
+                  </li></>}
+
               {!isAuthenticated ? (
                 <>
                   <li className="text-white">
@@ -104,7 +117,7 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
                   </button>
                 </li>
               ) : null}
-              {currentUser?.cartMenuItem.length > 0 && isAuthenticated ? (
+              {cartMenuItemLength > 0 && isAuthenticated ? (
                 <li>
                   <button className="ml-2 rounded-full bg-blue-600 p-2 text-white"
                     onClick={() => navigate('/cart-menu-item')}>
