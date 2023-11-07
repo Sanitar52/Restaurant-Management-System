@@ -24,11 +24,12 @@ const Routes = () => {
 
 
       <Set wrap={HeaderLayout}>
-      <Route path="/management" page={ManagementPage} name="management" />
+
         <Route path="/restaurant" page={RestaurantPage} name="restaurantPage" />
-        <Private unauthenticated="home">
+        {/* <Private unauthenticated="home" roles={["EMPLOYEE","ADMIN"]}> */}
+          <Route path="/management" page={ManagementPage} name="management" />
+        {/* </Private> */}
           <Route path="/cart-menu-item" page={CartMenuItemPage} name="cartMenuItem" />
-        </Private>
         <Route path="/" page={HomePage} name="home" />
         <Route path="/login" page={LoginPage} name="login" />
         <Route path="/signup" page={SignupPage} name="signup" />

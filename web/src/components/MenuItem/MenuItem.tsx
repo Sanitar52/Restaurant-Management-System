@@ -1,7 +1,9 @@
 import { Toaster, toast } from "@redwoodjs/web/dist/toast";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useAuth } from "src/auth";
 import { useMutation } from '@redwoodjs/web'
+import { QUERY as HeaderCartsCellQuery } from 'src/components/HeaderCartsCell'
+import Spinner from "../Spinner/Spinner";
 interface Props {
   menuItem: {
     category: string;
@@ -29,14 +31,21 @@ const MenuItem = ({ menuItem }: Props) => {
   }
   )
   const { isAuthenticated, getToken, currentUser } = useAuth()
-  const [create, { loading, error }] = useMutation(createCartMenuItem)
+  const [create, { loading, error }] = useMutation(createCartMenuItem, {
+    refetchQueries: [{ query: HeaderCartsCellQuery, notifyOnNetworkStatusChange: true }],
+    awaitRefetchQueries: true,
+    onCompleted: () => { toast.success('Eşya başarıyla sepete eklendi') },
+  })
+  console.log(loading, error);
   const [isItemInCart, setIsItemInCart] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const totPrice = quantity * menuItem.price
 
+
+
   const handleAddToCart = async () => {
     if (isAuthenticated) {
-      toast.success('Eşya başarıyla sepete eklendi')
+
       try {
         await create({
           variables: {
@@ -127,14 +136,16 @@ const MenuItem = ({ menuItem }: Props) => {
             min="1"
             value={quantity}
             onChange={handleQuantityChange}
-            defaultValue="1"
           />
+          {!loading ?
+
           <button
             className="mx-4 rounded bg-blue-500 px-4 py-2 text-sm text-white transition-colors duration-300 hover:bg-blue-700"
             onClick={() => handleAddToCart()}
           >
             Sepete Ekle
-          </button>
+          </button> :<Spinner/>
+          }
           <div className="mt-4 flex items-center justify-between">
             <div className="font-bold text-gray-800">
               Toplam Fiyat: {totPrice}₺

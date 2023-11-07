@@ -7,7 +7,7 @@ import { CreateOrderInput } from 'types/graphql'
 import { Dialog } from '@reach/dialog';
 import VisuallyHidden from '@reach/visually-hidden';
 import { useAuth } from 'src/auth'
-
+import { QUERY as HeaderCartsCellQuery } from 'src/components/HeaderCartsCell'
 export const QUERY = gql`
   query {
     me {
@@ -87,6 +87,9 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
     onCompleted: () => {
       toast.success('Cart item deleted');
     },
+    refetchQueries:[{query:HeaderCartsCellQuery}],
+    awaitRefetchQueries: true,
+
     onError: (error) => {
       toast.error('Failed to delete cart item');
       console.error(error);
@@ -119,6 +122,12 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
             id: id,
           },
         });
+
+
+
+
+
+
 
         // Manually update the cart data by filtering out the deleted item
         setCart((prevCart) =>

@@ -66,7 +66,7 @@ export const handler = async (
     },
 
     // How long a user will remain logged in, in seconds
-    expires: 60 * 60 * 24 * 365 * 10,
+    expires: 60 * 60 * 24 ,
   }
 
   const resetPasswordOptions: DbAuthHandlerOptions['resetPassword'] = {
@@ -158,7 +158,7 @@ export const handler = async (
     // something like `id` or `userId` or even `email`)
     authFields: {
       id: 'id',
-      username: 'email',
+      username: 'username',
       hashedPassword: 'hashedPassword',
       salt: 'salt',
       resetToken: 'resetToken',

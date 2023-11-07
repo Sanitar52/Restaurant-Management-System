@@ -55,6 +55,8 @@ export const Success = ({ orders }: CellSuccessProps<Query>) => {
     onCompleted: () => {
       toast.success('Order deleted');
     },
+    awaitRefetchQueries: true,
+    refetchQueries: [{ query: QUERY }],
     onError: (error) => {
       toast.error('Failed to delete Order');
       console.error(error);

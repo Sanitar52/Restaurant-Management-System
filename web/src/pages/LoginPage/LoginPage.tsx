@@ -32,7 +32,7 @@ const LoginPage = () => {
   const onSubmit = async (data: Record<string, string>) => {
     setIsLoading(true); // Set loading state to true when login starts
     try {
-      const response = await logIn({  
+      const response = await logIn({
         username: data.username,
         password: data.password,
       });
@@ -48,7 +48,7 @@ const LoginPage = () => {
       }
     } finally {
       setIsLoading(false); // Set loading state to false when login finishes
-      navigate('/')
+
     }
   };
 

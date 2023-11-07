@@ -1,9 +1,9 @@
 import { Link, navigate } from '@redwoodjs/router';
 import { useQuery } from '@redwoodjs/web';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useAuth } from 'src/auth';
 import { User } from 'types/graphql';
-
+import HeaderCartsCell from "src/components/HeaderCartsCell"
 type HeaderLayoutProps = {
   children?: React.ReactNode;
 };
@@ -11,9 +11,8 @@ type HeaderLayoutProps = {
 const HeaderLayout = ({ children }: HeaderLayoutProps) => {
   const { isAuthenticated, currentUser, logOut, userMetadata } = useAuth();
   const [currentUserData, setCurrentUserData] = useState<any>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State to track dropdown visibility
-  const [cartMenuItemLength, setCartMenuItemLength] = useState<number>(0); // State to track cartMenuItem length
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [cartMenuItemLength, setCartMenuItemLength] = useState<number>(0);
 
 
   const toggleDropdown = () => {
@@ -28,10 +27,6 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
       // Handle logout error as needed
     }
   };
-  useEffect(() => {
-    // Update cartMenuItemLength when currentUser's cartMenuItem changes
-    setCartMenuItemLength(currentUser?.cartMenuItem.length || 0);
-  }, [currentUser?.cartMenuItem]);
 
   return (
     <>
@@ -83,7 +78,26 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
                   )}
                 </li>
               ) : null}
-              {currentUser?.role=== 'EMPLOYEE' ? (
+              {!isAuthenticated ? <>
+                <li className="text-white">
+                  <Link to="/restaurant">Restaurants</Link>
+                </li>
+
+              </>:
+              currentUser?.role=== 'EMPLOYEE' ? (
+                <><li className="text-white">
+                  <Link to="/restaurant">Take Order</Link>
+                </li><li className="text-white">
+                    <Link to="/management">Orders</Link>
+                  </li></>
+              ) : currentUser?.role==='ADMIN'  ? <><li className="text-white">
+                  <Link to="/restaurant">Restaurants</Link>
+                </li><li className="text-white">
+                    <Link to="/management">Management</Link>
+                  </li></>:<li className="text-white">
+                  <Link to="/restaurant">Restaurants</Link>
+                </li>}
+              {/*currentUser?.role=== 'EMPLOYEE' ? (
                 <><li className="text-white">
                   <Link to="/restaurant">Take Order</Link>
                 </li><li className="text-white">
@@ -93,7 +107,7 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
                   <Link to="/restaurant">Restaurants</Link>
                 </li><li className="text-white">
                     <Link to="/management">Management</Link>
-                  </li></>}
+                  </li></>*/}
 
               {!isAuthenticated ? (
                 <>
@@ -107,7 +121,7 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
               ) : null}
 
               {/* Display the Logout button if authenticated */}
-              {isAuthenticated ? (
+              {isAuthenticated ? (<>
                 <li>
                   <button
                     className="text-white"
@@ -116,16 +130,10 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
                     Logout
                   </button>
                 </li>
-              ) : null}
-              {cartMenuItemLength > 0 && isAuthenticated ? (
-                <li>
-                  <button className="ml-2 rounded-full bg-blue-600 p-2 text-white"
-                    onClick={() => navigate('/cart-menu-item')}>
-                    <svg className="w-12 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
-                      <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z" />
-                    </svg>
-                  </button>
-                </li>
+                <li className="text-white">
+                <HeaderCartsCell />
+              </li>
+              </>
               ) : null}
             </ul>
           </nav>
