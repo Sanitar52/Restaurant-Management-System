@@ -20,6 +20,8 @@ export const schema = gql`
   type Query {
     orders: [Order!]! @requireAuth
     order(id: Int!): Order @requireAuth
+    ordersOnGoing(status: OrderStatus!): [Order!]! @requireAuth
+    ordersCompleted(status: OrderStatus!): [Order!]! @requireAuth
   }
 
   input CreateOrderInput {
@@ -31,13 +33,14 @@ export const schema = gql`
 
   input UpdateOrderInput {
     userId: Int
-    cartMenuItemIds: [Int]!
+    cartMenuItemIds: [Int!]!
     status: OrderStatus
     total: Float
   }
 
   type Mutation {
     createOrder(input: CreateOrderInput!): Order! @requireAuth
+    updateOrderStatus(id: Int!, status: OrderStatus!): Order! @requireAuth
     updateOrder(id: Int!, input: UpdateOrderInput!): Order! @requireAuth
     deleteOrder(id: Int!): Order! @requireAuth
   }

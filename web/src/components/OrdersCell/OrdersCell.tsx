@@ -1,9 +1,8 @@
-import type { Query } from 'types/graphql'
+import type { OrderStatus, Query, UpdateOrderInput } from 'types/graphql'
 import { type CellSuccessProps, type CellFailureProps, useMutation } from '@redwoodjs/web'
 import { useRef, useState } from 'react'
 import { toast } from '@redwoodjs/web/dist/toast'
 import { Dialog } from '@reach/dialog'
-
 export const QUERY = gql`
   query OrdersQuery {
     orders {
@@ -36,6 +35,14 @@ const DELETE_ORDER_MUTATION = gql`
     }
   }
 `
+const UPDATE_ORDER_MUTATION = gql`
+  mutation UpdateOrderMutation($id: Int!, $status: OrderStatus!) {
+    updateOrderStatus(id: $id, status: $status) {
+      id
+      status
+    }
+  }
+`
 
 export const Loading = () => <div>Loading...</div>
 
@@ -48,10 +55,12 @@ export const Failure = ({ error }: CellFailureProps) => (
 export const Success = ({ orders }: CellSuccessProps<Query>) => {
   const [order, setOrder] = useState(orders? [] : []);
   const [isConfirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [isOrderConfirmDialogOpen, setOrderConfirmDialogOpen] = useState(false);
   const orderIdToDelete = useRef<number | null>(null);
+  const orderIdToComplete = useRef<number | null>(null);
 
 
-  const [deleteOrder] = useMutation(DELETE_ORDER_MUTATION, {
+  const [deleteOrder] = useMutation(DELETE_ORDER_MUTATION,  {
     onCompleted: () => {
       toast.success('Order deleted');
     },
@@ -62,10 +71,25 @@ export const Success = ({ orders }: CellSuccessProps<Query>) => {
       console.error(error);
     },
   });
+  const [updateOrder] = useMutation(UPDATE_ORDER_MUTATION, {
+    onCompleted: () => {
+      toast.success('Order confirmed');
+    },
+    awaitRefetchQueries: true,
+    refetchQueries: [{ query: QUERY }],
+    onError: (error) => {
+      toast.error('Failed to confirm order');
+      console.error(error);
+    },
+  });
 
   const handleDeleteOrder = (id: number) => {
     orderIdToDelete.current = id;
     setConfirmDialogOpen(true);
+  };
+  const handleOrder = (id: number) => {
+    orderIdToComplete.current = id;
+    setOrderConfirmDialogOpen(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -92,12 +116,39 @@ export const Success = ({ orders }: CellSuccessProps<Query>) => {
       console.error('Error deleting cart item:', error);
     }
   };
+  const handleConfirmOrder = async (status: OrderStatus) => {
+    try {
+      if (orderIdToComplete.current !== null) {
+        const id = orderIdToComplete.current as number;
+        await updateOrder({
+          variables: {
+            id: id,
+            status: status,
+          },
+        });
+
+        // Manually update the cart data by filtering out the deleted item
+        setOrder((prevOrder) =>
+          prevOrder.filter((order) => order.id !== id)
+        );
+
+        // Reset the cartItemIdToDelete ref
+        orderIdToDelete.current = null;
+        // Close the confirmation dialog
+        setOrderConfirmDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Error updating cart item:', error);
+    }
+  }
+
+
 
 
 
 
   return (
-    <div className="border border-gray-200 rounded-3xl p-4">
+    <div className="border border-gray-400 rounded-3xl p-8 ">
       {orders.map((order, i) => (
 
         <div key={i} className="m b-4 flex items-center">
@@ -119,9 +170,9 @@ export const Success = ({ orders }: CellSuccessProps<Query>) => {
             fill="none"
             viewBox="0 0 16 12"
             stroke="currentColor"
-            onClick={() => handleDeleteOrder(order.id as number)}
+            onClick={() => handleOrder(order.id as number)}
           >
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
+            <path stroke="currentColors" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
           </svg>
 
 
@@ -163,6 +214,31 @@ export const Success = ({ orders }: CellSuccessProps<Query>) => {
       <button
         className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-red-300"
         onClick={() => setConfirmDialogOpen(false)}
+      >
+        Hayır
+      </button>
+    </div>
+  </div>
+</Dialog>
+<Dialog
+  isOpen={isOrderConfirmDialogOpen}
+  onDismiss={() => setOrderConfirmDialogOpen(false)}
+  className="fixed inset-0 flex items-center justify-center"
+  style={{ backdropFilter: 'blur(2px)' }}
+>
+  <div className="bg-white p-4 rounded-lg text-center">
+    <h2 className="text-lg font-semibold">Onaylama</h2>
+    <p className="text-gray-700 my-4">Onaylamak istediğinize emin misiniz?</p>
+    <div className="flex justify-center space-x-4">
+      <button
+        className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-green-300"
+        onClick={() => handleConfirmOrder('COMPLETED')}
+      >
+        Evet
+      </button>
+      <button
+        className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-red-300"
+        onClick={() => setOrderConfirmDialogOpen(false)}
       >
         Hayır
       </button>

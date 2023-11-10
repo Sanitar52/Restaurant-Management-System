@@ -17,7 +17,7 @@ import {
   CreateMenuItemInputVariables,
   User,
 } from 'types/graphql';
-import OrdersCell from 'src/components/OrdersCell';
+import OrdersCell from '../../components/OrdersCell';
 const CREATE_MENU_ITEM = gql`
   mutation CreateMenuItemInput($input: CreateMenuItemInput!) {
     createMenuItem(input: $input) {

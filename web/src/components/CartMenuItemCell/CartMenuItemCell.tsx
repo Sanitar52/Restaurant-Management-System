@@ -7,7 +7,7 @@ import { CreateOrderInput } from 'types/graphql'
 import { Dialog } from '@reach/dialog';
 import VisuallyHidden from '@reach/visually-hidden';
 import { useAuth } from 'src/auth'
-import { QUERY as HeaderCartsCellQuery } from 'src/components/HeaderCartsCell'
+import { QUERY as HeaderCartsCellQuery } from '../../components/HeaderCartsCell'
 export const QUERY = gql`
   query {
     me {
