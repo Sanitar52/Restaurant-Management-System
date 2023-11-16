@@ -25,7 +25,7 @@ const Routes = () => {
 
       <Set wrap={HeaderLayout}>
 
-        <Route path="/restaurant" page={RestaurantPage} name="restaurantPage" />
+        <Route path="/restaurant" page={RestaurantPage} name="restaurantPage" prerender />
         {/* <Private unauthenticated="home" roles={["EMPLOYEE","ADMIN"]}> */}
           <Route path="/management" page={ManagementPage} name="management" />
         {/* </Private> */}
