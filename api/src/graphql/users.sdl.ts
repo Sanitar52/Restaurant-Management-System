@@ -18,7 +18,8 @@ export const schema = gql`
 
   enum Role {
     ADMIN
-    USER
+    CUSTOMER
+    EMPLOYEE
   }
 
   type Query {

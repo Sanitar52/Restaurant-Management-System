@@ -12,21 +12,21 @@ generator client {
 // to create migrations for them and apply to your dev DB.
 // TODO: Please remove the following example:
 model User {
-  id                  Int                 @id @default(autoincrement())
+  id                  Int                @id @default(autoincrement())
   employee            Employee?
   name                String?
-  email               String              @unique
-  username            String              @unique
+  email               String             @unique
+  username            String             @unique
   hashedPassword      String
   salt                String
   resetToken          String?
   resetTokenExpiresAt DateTime?
-  role                Role                @default(CUSTOMER)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  role                Role               @default(CUSTOMER)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
   cartMenuItem        CartMenuItem[]
   orders              Order[]
-  restaurantRating    RestaurantRatings[]
+  restaurantRating    RestaurantRating[]
 }
 
 enum Role {
@@ -44,24 +44,24 @@ model Employee {
 }
 
 model Restaurant {
-  id                      Int                 @id @default(autoincrement())
-  employee                Employee[]
-  menuItems               MenuItem[]
-  name                    String
-  body                    String
-  logo                    String
-  restaurantCode          Int                 @unique
-  restaurantIngredientsId Int?
-  restaurantIngredients   ItemIngredient[]
-  restaurantRatings       RestaurantRatings[]
-  createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @updatedAt
-  address                 String?
-  city                    String?
-  ratings                 Float?
+  id                    Int                    @id @default(autoincrement())
+  employee              Employee[]
+  menuItems             MenuItem[]
+  name                  String
+  body                  String
+  logo                  String
+  description           String
+  restaurantCode        Int                    @unique
+  restaurantIngredients RestaurantIngredient[]
+  restaurantRatings     RestaurantRating[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  address               String?
+  city                  String?
+  ratings               Float?
 }
 
-model RestaurantRatings {
+model RestaurantRating {
   id             Int        @id @default(autoincrement())
   restaurantCode Int
   restaurant     Restaurant @relation(fields: [restaurantCode], references: [restaurantCode])
@@ -81,16 +81,24 @@ enum Category {
   HOTDRINKS
 }
 
+model RestaurantIngredient {
+  id             Int        @id @default(autoincrement())
+  restaurantCode Int
+  restaurant     Restaurant @relation(fields: [restaurantCode], references: [restaurantCode])
+  name           String
+  quantity       Float?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
 model ItemIngredient {
-  id           Int         @id @default(autoincrement())
-  menuItemId   Int?
-  menuItem     MenuItem?   @relation(fields: [menuItemId], references: [id])
-  restaurandId Int?
-  restaurant   Restaurant? @relation(fields: [restaurandId], references: [id])
-  name         String
-  quantity     Float?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id         Int      @id @default(autoincrement())
+  menuItemId Int
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  name       String
+  quantity   Float?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model MenuItem {
@@ -108,6 +116,11 @@ model MenuItem {
   updatedAt      DateTime       @updatedAt
 
   ItemIngredients ItemIngredient[]
+}
+
+enum ItemType {
+  RESTAURANT
+  MENU_ITEM
 }
 
 model CartMenuItem {

@@ -5,7 +5,6 @@ import { useAuth } from 'src/auth'
 import { useEffect, useState } from 'react';
 import MenuItem from 'src/components/MenuItem/MenuItem';
 import RestaurantByNameCell from '../../components/RestaurantByNameCell';
-import CartMenuItemCell from '../../components/CartMenuItemCell';
 import { getCurrentUser } from 'src/lib/auth';
 
 const RestaurantPage = ({ name }) => {

@@ -2,7 +2,7 @@ import { Toaster, toast } from "@redwoodjs/web/dist/toast";
 import { useContext, useEffect, useState } from "react";
 import { useAuth } from "src/auth";
 import { useMutation } from '@redwoodjs/web'
-import { QUERY as HeaderCartsCellQuery } from 'src/components/HeaderCartsCell'
+import { QUERY as HeaderCartsCellQuery } from '../../components/HeaderCartsCell'
 import Spinner from "../Spinner/Spinner";
 interface Props {
   menuItem: {

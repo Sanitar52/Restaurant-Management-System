@@ -1,4 +1,4 @@
-import type { OrderStatus, Query, UpdateOrderInput } from 'types/graphql'
+import type { OrderStatus, Query, QueryorderArgs} from 'types/graphql'
 import { type CellSuccessProps, type CellFailureProps, useMutation } from '@redwoodjs/web'
 import { useRef, useState } from 'react'
 import { toast } from '@redwoodjs/web/dist/toast'
@@ -14,14 +14,36 @@ export const QUERY = gql`
       }
       total
       status
+      createdAt
+      updatedAt
       cartMenuItems {
         id
         quantity
+
         menuItem {
           id
           name
           description
           price
+          logo
+          restaurant {
+            id
+            name
+            description
+            logo
+            createdAt
+            updatedAt
+          }
+          itemIngredients {
+            id
+            quantity
+            menuItemId
+            name
+            createdAt
+            updatedAt
+          }
+
+
         }
       }
 
@@ -52,7 +74,7 @@ export const Failure = ({ error }: CellFailureProps) => (
   <div style={{ color: 'red' }}>Error: {error?.message}</div>
 )
 
-export const Success = ({ orders }: CellSuccessProps<Query>) => {
+export const Success = ({ orders, }: CellSuccessProps<Query>) => {
   const [order, setOrder] = useState(orders? [] : []);
   const [isConfirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [isOrderConfirmDialogOpen, setOrderConfirmDialogOpen] = useState(false);

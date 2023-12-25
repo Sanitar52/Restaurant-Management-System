@@ -10,6 +10,9 @@ export const schema = gql`
     quantity: Int!
     price: Float!
     cartMenuItem: [CartMenuItem]!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    itemIngredients: [ItemIngredient]!
   }
 
   enum Category {

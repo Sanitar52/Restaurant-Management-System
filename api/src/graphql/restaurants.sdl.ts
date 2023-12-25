@@ -3,10 +3,18 @@ export const schema = gql`
     id: Int!
     employee: [Employee]!
     menuItems: [MenuItem]!
+    restaurantIngredients: [RestaurantIngredient]!
+    restaurantRatings: [RestaurantRating]!
     name: String!
     body: String!
     logo: String!
+    description: String!
     restaurantCode: Int!
+    address: String!
+    city: String!
+    ratings: Float!
+    createdAt: DateTime!
+    updatedAt: DateTime!
   }
 
   type Query {

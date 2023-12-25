@@ -1,4 +1,4 @@
-import type { CartMenuItems, Query } from 'types/graphql'
+import type { CartMenuItem, Query } from 'types/graphql'
 import type { CellSuccessProps, CellFailureProps } from '@redwoodjs/web'
 import { Link, navigate } from '@redwoodjs/router';
 import Spinner from '../Spinner/Spinner';
