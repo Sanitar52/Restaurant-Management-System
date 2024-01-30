@@ -5,6 +5,7 @@ export const schema = gql`
     user: User!
     cartMenuItemIds: [Int]!
     cartMenuItems: [CartMenuItem]!
+    restaurantCode: Int!
     status: OrderStatus!
     total: Float!
     createdAt: DateTime!
@@ -19,6 +20,8 @@ export const schema = gql`
 
   type Query {
     orders: [Order!]! @requireAuth
+    ordersByUser(userId: Int!): [Order!]! @requireAuth
+    ordersByRestaurant(restaurantCode: Int!): [Order!]! @requireAuth
     order(id: Int!): Order @requireAuth
     ordersOnGoing(status: OrderStatus!): [Order!]! @requireAuth
     ordersCompleted(status: OrderStatus!): [Order!]! @requireAuth
@@ -27,6 +30,7 @@ export const schema = gql`
   input CreateOrderInput {
     userId: Int!
     cartMenuItemIds: [Int]!
+    restaurantCode: Int!
     status: OrderStatus!
     total: Float!
   }

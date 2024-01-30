@@ -28,6 +28,10 @@ export const schema = gql`
     body: String!
     logo: String!
     restaurantCode: Int!
+    description: String!
+    address: String!
+    city: String!
+
   }
 
   input UpdateRestaurantInput {

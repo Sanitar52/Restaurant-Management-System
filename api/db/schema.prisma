@@ -59,6 +59,7 @@ model Restaurant {
   address               String?
   city                  String?
   ratings               Float?
+  orders                Order[]
 }
 
 model RestaurantRating {
@@ -144,6 +145,8 @@ model Order {
   user            User           @relation(fields: [userId], references: [id])
   cartMenuItemIds Int[]
   cartMenuItems   CartMenuItem[]
+  restaurantCode  Int            @default(1)
+  restaurant      Restaurant     @relation(fields: [restaurantCode], references: [restaurantCode])
   status          OrderStatus    @default(PENDING)
   total           Float
   createdAt       DateTime       @default(now())

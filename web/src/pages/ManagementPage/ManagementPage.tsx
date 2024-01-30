@@ -15,6 +15,8 @@ import { useRef } from 'react';
 import {
   CreateMenuItemInput,
   CreateMenuItemInputVariables,
+  CreateRestaurantInput,
+  CreateRestaurantInputVariables,
   User,
 } from 'types/graphql';
 import OrdersCell from '../../components/OrdersCell';
@@ -33,6 +35,7 @@ const GET_RESTAURANTS = gql`
     }
   }
 `;
+
 
 const CREATE_RESTAURANT = gql`
   mutation CreateRestaurant($input: CreateRestaurantInput!) {
@@ -68,37 +71,72 @@ const ManagementPage: React.FC = () => {
     setShowPopup(null);
   };
 
-  const [create] = useMutation<
+  const [createMenuItem] = useMutation<
     CreateMenuItemInput,
     CreateMenuItemInputVariables
   >(CREATE_MENU_ITEM);
 
-  const onSubmit: SubmitHandler<CreateMenuItemInput> = async (data) => {
+  const [createRestaurant] = useMutation<
+  CreateRestaurantInput,
+   CreateRestaurantInputVariables>
+   (CREATE_RESTAURANT);
 
-    setIsLoading(true)
-    const quantity: number = data.quantity;
-    const price: number = data.price;
-    const restaurantCodeAdmin: number = data.restaurantCode;
-    const restaurantCodeEmployee: number = currentUser?.employee?.restaurant?.restaurantCode;
-    await create({
-      variables: {
-        input: {
-          ...data,
-          quantity: parseInt(quantity.toString(), 10),
-          price: parseFloat(price.toString()),
-          restaurantCode: userRole === 'EMPLOYEE' ? parseInt(restaurantCodeEmployee.toString()) : userRole === 'ADMIN' ? parseInt(restaurantCodeAdmin.toString()) : 0, // Use the restaurant code from the user's restaurant
+   const onSubmitRestaurantCreate: SubmitHandler<CreateRestaurantInput> = async (data) => {
+    setIsLoading(true);
+    try {
+      await createRestaurant({
+        variables: {
+          input: {
+            ...data,
+            restaurantCode: parseInt(data.restaurantCode.toString(), 10),
+          },
         },
-      },
-    })
-      .then(() => {
-        toast.success('Menu item created successfully');
-        closePopup();
-      })
-      .catch((error) => {
-        toast.error('Error creating menu item');
-        console.error(error);
       });
-    setIsLoading(false);
+      toast.success('Restaurant created successfully');
+      setTimeout(() => {
+        closePopup();
+      }, 3000); // Close the popup after 3 seconds
+    } catch (error) {
+      toast.error('Error creating restaurant');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onSubmitMenuItem: SubmitHandler<CreateMenuItemInput> = async (data) => {
+    setIsLoading(true);
+    try {
+      const quantity: number = data.quantity;
+      const price: number = data.price;
+      const restaurantCodeAdmin: number = data.restaurantCode;
+      const restaurantCodeEmployee: number =
+        currentUser?.employee?.restaurant?.restaurantCode || 0;
+      await createMenuItem({
+        variables: {
+          input: {
+            ...data,
+            quantity: parseInt(quantity.toString(), 10),
+            price: parseFloat(price.toString()),
+            restaurantCode:
+              userRole === 'EMPLOYEE'
+                ? parseInt(restaurantCodeEmployee.toString())
+                : userRole === 'ADMIN'
+                ? parseInt(restaurantCodeAdmin.toString())
+                : 0, // Use the restaurant code from the user's restaurant
+          },
+        },
+      });
+      toast.success('Menu item created successfully');
+      setTimeout(() => {
+        closePopup();
+      }, 3000); // Close the popup after 3 seconds
+    } catch (error) {
+      toast.error('Error creating menu item');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -124,13 +162,13 @@ const ManagementPage: React.FC = () => {
           Siparişlere bak
         </button>
         <button
-          onClick={() => openPopup('Orders')}
+          onClick={() => openPopup('RestaurantCreate')}
           className="h-auto max-w-lg button-primary-lg mb-12 w-full justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           <svg className="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
             <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z" />
           </svg>
-          Test1
+          Restoran ekle
         </button>
         <button
           onClick={() => openPopup('Orders')}
@@ -164,7 +202,7 @@ const ManagementPage: React.FC = () => {
       case 'Menu':
         return (
           <div className="popup">
-            <Form onSubmit={onSubmit} className="rw-form-wrapper">
+            <Form onSubmit={onSubmitMenuItem} className="rw-form-wrapper">
               <Label
                 name="name"
                 className="rw-label"
@@ -360,9 +398,169 @@ const ManagementPage: React.FC = () => {
           </button>
         </div>
         );
+      case 'RestaurantCreate':
+        return (
+          <div className="popup">
+            <Form onSubmit={onSubmitRestaurantCreate} className="rw-form-wrapper">
+              <Label
+                name="name"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                Name
+              </Label>
+              <TextField
+                name="name"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Name is required',
+                  },
+                }}
+              />
+              <FieldError name="name" className="rw-field-error" />
+
+              <Label
+                name="body"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                body
+              </Label>
+              <TextField
+                name="body"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Body is required',
+                  },
+                }}
+              />
+              <FieldError name="body" className="rw-field-error" />
+              <Label
+                name="logo"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                logo
+              </Label>
+              <TextField
+                name="logo"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Logo is required',
+                  },
+                }}
+              />
+
+              <FieldError name="logo" className="rw-field-error" />
+
+              <Label
+                name="restaurantCode"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                RestaurantCode
+              </Label>
+              <TextField
+                name="restaurantCode"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Restaurant Code is required',
+                  },
+                }}
+              />
+              <FieldError name="restaurantCode" className="rw-field-error" />
+
+              <Label
+                name="address"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                Address
+              </Label>
+              <TextField
+                name="address"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Address is required',
+                  },
+                }}
+              />
+              <FieldError name="address" className="rw-field-error" />
+              <Label
+                name="description"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                Description
+              </Label>
+              <TextField
+                name="description"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Description is required',
+                  },
+                }}
+              />
+              <FieldError name="description" className="rw-field-error" />
+              <Label
+                name="city"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                City
+              </Label>
+              <TextField
+                name="city"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'City is required',
+                  },
+                }}
+              />
+              <FieldError name="city" className="rw-field-error" />
+              <div className="rw-button-group">
+                <Submit
+                  className={`rw-button rw-button-blue ${isLoading ? 'rw-loading' : ''
+                    }`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Submitting ...' : 'Submit'}
+                </Submit>
+              </div>
+              </Form>
+            <button onClick={closePopup} className="button-secondary mt-4">
+              Close
+            </button>
+          </div>
+        )
+
+
       default:
         return null;
     }
+
   }
 };
 

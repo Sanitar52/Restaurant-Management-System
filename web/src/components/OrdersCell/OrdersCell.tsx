@@ -14,6 +14,7 @@ export const QUERY = gql`
       }
       total
       status
+      restaurantCode
       createdAt
       updatedAt
       cartMenuItems {
@@ -74,7 +75,7 @@ export const Failure = ({ error }: CellFailureProps) => (
   <div style={{ color: 'red' }}>Error: {error?.message}</div>
 )
 
-export const Success = ({ orders, }: CellSuccessProps<Query>) => {
+export const Success = ({ orders,  }: CellSuccessProps<Query>) => {
   const [order, setOrder] = useState(orders? [] : []);
   const [isConfirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [isOrderConfirmDialogOpen, setOrderConfirmDialogOpen] = useState(false);

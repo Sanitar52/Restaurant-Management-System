@@ -11,6 +11,20 @@ import { db } from 'src/lib/db'
 export const orders: QueryResolvers['orders'] = () => {
   return db.order.findMany()
 }
+export const ordersByUser: QueryResolvers['ordersByUser'] = ({ userId }) => {
+  return db.order.findMany({
+    where: { userId },
+  })
+}
+export const ordersByRestaurant: QueryResolvers['ordersByRestaurant'] = ({ restaurantCode }) => {
+  if (restaurantCode == null || restaurantCode == undefined || !restaurantCode) {
+    return db.order.findMany()
+  }
+  else{
+  return db.order.findMany({
+    where: { restaurantCode },
+  })}
+}
 export const ordersOnGoing: QueryResolvers['ordersOnGoing'] = () => {
   return db.order.findMany({
     where: { status: { equals: "PENDING"} },

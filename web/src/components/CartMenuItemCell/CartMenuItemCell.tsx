@@ -8,6 +8,7 @@ import { Dialog } from '@reach/dialog';
 import VisuallyHidden from '@reach/visually-hidden';
 import { useAuth } from 'src/auth'
 import { QUERY as HeaderCartsCellQuery } from '../../components/HeaderCartsCell'
+
 export const QUERY = gql`
   query {
     me {
@@ -19,6 +20,7 @@ export const QUERY = gql`
           logo
           name
           price
+          restaurantCode
         }
         quantity
         orderPrice
@@ -49,6 +51,7 @@ const CREATE_ORDER_MUTATION = gql`
   mutation CreateOrderMutation($input: CreateOrderInput!) {
     createOrder(input: $input) {
       id
+      restaurantCode
     }
   }
 `
@@ -69,11 +72,18 @@ export const Failure = ({ error }: CellFailureProps) => (
 )
 
 export const Success = ({ me }: CellSuccessProps<Query>) => {
+
   const [cart, setCart] = useState(me?.cartMenuItem || [])
   const [isConfirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const cartItemIdToDelete = useRef<number | null>(null);
-  const {currentUser} = useAuth()
+  const [isPaymentPopupOpen, setPaymentPopupOpen] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+  const [isCryptoPopupOpen, setCryptoPopupOpen] = useState(false);
+  const [cryptoTotalAmount, setCryptoTotalAmount] = useState(0);
+  const [walletAddress, setWalletAddress] = useState(null);
 
+
+  const {currentUser} = useAuth()
   const [updateCartMenuItem] = useMutation(UPDATE_CART_MENU_ITEM_MUTATION, {
     onCompleted: () => {
       toast.success('Cart item updated');
@@ -95,6 +105,7 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
       console.error(error);
     },
   });
+
   const handleDeleteCartItem = (cartItemId: number, buying: boolean) => {
     // Store the cart item ID to be deleted in the ref
     cartItemIdToDelete.current = cartItemId;
@@ -122,10 +133,6 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
             id: id,
           },
         });
-
-
-
-
 
 
 
@@ -164,6 +171,7 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
     try {
       console.log(me)
       const id = currentUser?.id as number;
+      const restaurantCode = cart[0].menuItem.restaurantCode as number;
       const { data } = await createOrder({
         variables: {
           input: {
@@ -171,6 +179,7 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
             status: 'PENDING',
             total: calculateTotalPrice(),
             cartMenuItemIds: cart.map((cartItem) => cartItem.id) as number[],
+            restaurantCode: restaurantCode,
           },
         },
       });
@@ -190,10 +199,6 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
       console.error(error);
     },
   });
-
-
-
-
 
 
 
@@ -220,7 +225,6 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
       userId: me?.id as number,
       orderId: updatedCart[index].orderId as number,
 
-
     }
 
     );
@@ -240,7 +244,14 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
     })
     return totalPrice
   }
+  const handleBuyClick = () => {
+    setPaymentPopupOpen(true);
+  };
 
+  const handleCryptoPaymentClick = () => {
+    setCryptoTotalAmount(calculateTotalPrice()); // Set the total amount for payment
+    setCryptoPopupOpen(true);
+  };
 
 
   return (
@@ -305,12 +316,103 @@ export const Success = ({ me }: CellSuccessProps<Query>) => {
         </p>
         <button type="button" className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
           onClick={() => {
-            alert('Siparişiniz alındı');
+
+            // open the payment popup
+            setPaymentPopupOpen(true);
+
+          }}>Ödeme kısmına geç</button>
+      </div>
+
+      {/* Crypto Payment Popup */}
+      <Dialog
+    isOpen={isCryptoPopupOpen}
+    onDismiss={() => setCryptoPopupOpen(false)}
+    className="fixed inset-0 flex items-center justify-center"
+    style={{ backdropFilter: 'blur(2px)' }}
+  >
+    <div className="bg-white p-4 rounded-lg border border-gray-300 text-center shadow-lg">
+      <h2 className="text-lg font-semibold">Cryptocurrency Payment</h2>
+      <img
+      src="https://i.ibb.co/9wXMVCn/qr.jpg"
+      className="h-[200px] w-[200px]"
+      alt="qr"
+      />
+      <div className="flex justify-center space-x-4 mt-4">
+        <button
+          className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-green-300"
+          onClick={() => {
+            alert('Payment successful');
+            setCryptoPopupOpen(false);
             handleOrderCreate();
             cart.forEach((cartItem) => handleConfirmDelete(true as boolean))
-              setCart([])
-          }}>Satın Al</button>
+            setCart([])
+          }}
+        >
+          Click after send  :  {cryptoTotalAmount}TL
+        </button>
       </div>
+    </div>
+  </Dialog>
+      {/* Payment Popup */}
+<Dialog
+  isOpen={isPaymentPopupOpen}
+  onDismiss={() => setPaymentPopupOpen(false)}
+  className="fixed inset-0 flex items-center justify-center"
+  style={{ backdropFilter: 'blur(2px)' }}
+>
+  <div className="bg-white p-4 rounded-lg border border-gray-300 text-center shadow-lg">
+    <h2 className="text-lg font-semibold">Ödeme Yöntemi Seçimi</h2>
+    <div className="flex justify-center space-x-4 mt-4">
+      <button
+        className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-green-300"
+        onClick={() => {
+          setSelectedPaymentMethod('credit-card');
+          handleBuyClick();
+        }}
+      >
+        Kredi Kartı (Online payment)
+      </button>
+      <button
+        className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-green-300"
+        onClick={() => {
+          setSelectedPaymentMethod('credit-card');
+          handleBuyClick();
+        }}
+      >
+        Kredi Kartı (Kapıda Ödeme)
+      </button>
+      <button
+        className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-red-300"
+        onClick={() => {
+          setSelectedPaymentMethod('cash');
+          handleBuyClick();
+        }}
+      >
+        Nakit
+      </button>
+      <button
+        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-green-300"
+        onClick={() => {
+          setSelectedPaymentMethod('crypto-currency');
+          handleCryptoPaymentClick();
+        }}
+      >
+        Cryptocurrency
+      </button>
+      <div className="flex flex-col items-center">
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full font-semibold focus:outline-none focus:ring-2 focus:ring-green-300"
+          onClick={() => {
+            setPaymentPopupOpen(false);
+          }}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</Dialog>
+
       {/* Confirmation Dialog */}
       <Dialog
   isOpen={isConfirmDialogOpen}
