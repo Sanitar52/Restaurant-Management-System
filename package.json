@@ -25,6 +25,7 @@
   "packageManager": "yarn@3.6.3",
   "dependencies": {
     "@reach/dialog": "^0.18.0",
-    "@reach/visually-hidden": "^0.18.0"
+    "@reach/visually-hidden": "^0.18.0",
+    "ethers": "^6.10.0"
   }
 }

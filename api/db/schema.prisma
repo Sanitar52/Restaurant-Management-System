@@ -21,6 +21,7 @@ model User {
   salt                String
   resetToken          String?
   resetTokenExpiresAt DateTime?
+  wallet              userWallet?
   role                Role               @default(CUSTOMER)
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
@@ -33,6 +34,19 @@ enum Role {
   ADMIN
   EMPLOYEE
   CUSTOMER
+}
+
+model userWallet {
+  id               Int      @id @default(autoincrement())
+  userId           Int      @unique
+  user             User     @relation(fields: [userId], references: [id])
+  walletAddress    String   @unique
+  walletPrivateKey String   @unique
+  walletPublicKey  String   @unique
+  walletMnemonic   String   @unique
+  walletBalance    Float    @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model Employee {
