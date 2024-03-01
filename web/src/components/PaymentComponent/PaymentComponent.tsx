@@ -119,7 +119,7 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({selectedPaymentMetho
         .finally(async () => {
           setWalletLoading(false);
           toast.success('Wallet connected');
-          await tryToEthereum(calculateTotalPrice());
+          await tryToEthereum( paymentAmount );
         });
     }
     else {
