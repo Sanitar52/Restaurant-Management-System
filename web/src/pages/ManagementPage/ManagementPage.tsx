@@ -17,9 +17,14 @@ import {
   CreateMenuItemInputVariables,
   CreateRestaurantInput,
   CreateRestaurantInputVariables,
+  CreateRestaurantIngredientInput,
+  CreateRestaurantIngredientInputVariables,
   User,
 } from 'types/graphql';
 import OrdersCell from '../../components/OrdersCell';
+
+import managementImage from '../../../public/managementbg.jpg'; // Import the image
+
 const CREATE_MENU_ITEM = gql`
   mutation CreateMenuItemInput($input: CreateMenuItemInput!) {
     createMenuItem(input: $input) {
@@ -44,6 +49,15 @@ const CREATE_RESTAURANT = gql`
     }
   }
 `;
+const CREATE_RESTAURANT_INGREDIENT = gql`
+  mutation CreateRestaurantIngredientInput(
+    $input: CreateRestaurantIngredientInput!
+  ) {
+    createRestaurantIngredient(input: $input) {
+      id
+    }
+  }
+`;
 
 const ManagementPage: React.FC = () => {
 
@@ -54,6 +68,23 @@ const ManagementPage: React.FC = () => {
   const [allRestaurantsData, setAllRestaurantsData] = useState<any>(null);
   const userRole = currentUser?.role;
   const { loading: loadingRestaurantData, error: restaurantErrorData, data: restaurantsData } = useQuery(GET_RESTAURANTS);
+  const backgroundRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (backgroundRef.current) {
+        const scrollTop = window.scrollY;
+        const backgroundOffset = scrollTop * 0.5; // Adjust the value to control the scrolling speed
+        backgroundRef.current.style.backgroundPositionY = `-${backgroundOffset}px`;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   useEffect(() => {
     if (!loadingRestaurantData && !restaurantErrorData) {
       setAllRestaurantsData(restaurantsData);
@@ -80,6 +111,11 @@ const ManagementPage: React.FC = () => {
   CreateRestaurantInput,
    CreateRestaurantInputVariables>
    (CREATE_RESTAURANT);
+
+  const [createRestaurantIngredient] = useMutation<
+    CreateRestaurantIngredientInput,
+    CreateRestaurantIngredientInputVariables
+  >(CREATE_RESTAURANT_INGREDIENT);
 
    const onSubmitRestaurantCreate: SubmitHandler<CreateRestaurantInput> = async (data) => {
     setIsLoading(true);
@@ -138,10 +174,47 @@ const ManagementPage: React.FC = () => {
       setIsLoading(false);
     }
   };
+  const onSubmitAddIngredient: SubmitHandler<CreateRestaurantIngredientInput> = async (data) => {
+    setIsLoading(true);
+    try {
+      const quantity: number = data.quantity;
+      const restaurantCodeAdmin: number = data.restaurantCode;
+      const restaurantCodeEmployee: number =
+        currentUser?.employee?.restaurant?.restaurantCode || 0;
+      await createRestaurantIngredient({
+        variables: {
+          input: {
+            ...data,
+            quantity: parseInt(quantity.toString(), 10),
+            restaurantCode:
+              userRole === 'EMPLOYEE'
+                ? parseInt(restaurantCodeEmployee.toString())
+                : userRole === 'ADMIN'
+                ? parseInt(restaurantCodeAdmin.toString())
+                : 0, // Use the restaurant code from the user's restaurant
+          },
+        },
+      });
+      toast.success('Ingredient created successfully');
+      setTimeout(() => {
+        closePopup();
+      }, 3000); // Close the popup after 3 seconds
+    } catch (error) {
+      toast.error('Error creating ingredient');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <>
       <MetaTags title="Management" description="Management page" />
+      <div
+        ref={backgroundRef}
+        className="min-h-screen bg-fixed bg-cover bg-center transition-all duration-300 relative opacity-85 "
+        style={{ backgroundImage: `url(${managementImage})` }}
+      >
       <div className="flex flex-col items-center justify-center h-screen  ">
         <button
           onClick={() => openPopup('Menu')}
@@ -171,13 +244,13 @@ const ManagementPage: React.FC = () => {
           Restoran ekle
         </button>
         <button
-          onClick={() => openPopup('Orders')}
+          onClick={() => openPopup('AddIngredient')}
           className="h-auto max-w-lg button-primary-lg mb-12 w-full justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           <svg className="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
             <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z" />
           </svg>
-          Test2
+          Yeni Malzeme Ekle
         </button>
         <button
           onClick={() => openPopup('Orders')}
@@ -186,14 +259,16 @@ const ManagementPage: React.FC = () => {
           <svg className="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
             <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z" />
           </svg>
-          Test3
+          Restoran Envanter ve Analiz
         </button>
       </div>
       {showPopup && (
         <div className="fixed inset-0 z-60 flex items-center justify-center">
           <div className="bg-white rounded-lg p-8 shadow-md">{renderPopup()}</div>
         </div>
+
       )}
+      </div>
     </>
   );
 
@@ -557,6 +632,103 @@ const ManagementPage: React.FC = () => {
         )
 
 
+      case 'AddIngredient':
+        return (
+          <div className="popup">
+            <h1>Add Ingredient</h1>
+            <Form onSubmit={onSubmitAddIngredient} className="rw-form-wrapper">
+              <Label
+                name="name"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                Name
+              </Label>
+              <TextField
+                name="name"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Name is required',
+                  },
+                }}
+              />
+              <FieldError name="name" className="rw-field-error" />
+              <Label
+                name="quantity"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                Quantity
+              </Label>
+              <TextField
+                name="quantity"
+                className="rw-input"
+                errorClassName="rw-input rw-input-error"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Quantity is required',
+                  },
+                }}
+              />
+              <FieldError name="quantity" className="rw-field-error" />
+              <Label
+                name="restaurantCode"
+                className="rw-label"
+                errorClassName="rw-label rw-label-error"
+              >
+                Restaurant
+              </Label>
+              {userRole === 'ADMIN' && (
+                <SelectField
+                  name="restaurantCode"
+                  className="rw-input"
+                  errorClassName="rw-input rw-input-error"
+                  validation={{
+                    required: {
+                      value: true,
+                      message: 'Restaurant is required',
+                    },
+                  }}
+                >
+                  <option value="0">Select a restaurant</option>
+                  {allRestaurantsData?.restaurants.map(
+                    (restaurant: any) => (
+                      <option value={restaurant.restaurantCode}>
+                        {restaurant.name}
+                      </option>
+                    )
+                  )}
+                </SelectField>
+              )
+              }
+              {userRole === 'EMPLOYEE' &&
+                <TextField
+                  name="restaurantCode"
+                  className="rw-input"
+                  errorClassName="rw-input rw-input-error"
+                  defaultValue={currentUser?.employee?.restaurant?.restaurantCode}
+                  readOnly
+                />
+              }
+              <div className="rw-button-group">
+                <Submit
+                  className={`rw-button rw-button-blue ${isLoading ? 'rw-loading' : ''
+                    }`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Submitting ...' : 'Submit'}
+                </Submit>
+              </div>
+            </Form>
+            <button onClick={closePopup} className="button-secondary mt-4">
+              Close
+            </button>
+          </div>
+        );
       default:
         return null;
     }

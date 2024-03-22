@@ -26,6 +26,8 @@
   "dependencies": {
     "@reach/dialog": "^0.18.0",
     "@reach/visually-hidden": "^0.18.0",
-    "ethers": "^6.10.0"
+    "ethers": "^6.10.0",
+    "html-to-image": "^1.11.11",
+    "react-qr-code": "^2.0.12"
   }
 }

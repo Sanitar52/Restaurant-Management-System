@@ -5,6 +5,7 @@ import { useAuth } from 'src/auth';
 import { User } from 'types/graphql';
 import HeaderCartsCell from "../../components/HeaderCartsCell"
 import MobileDropdownContent from '../../components/MobileDropdownContent';
+import logo from '../../../public/mylogo.jpg';
 type HeaderLayoutProps = {
   children?: React.ReactNode;
 };
@@ -52,10 +53,17 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
     <>
       <header className="bg-gray-800 py-4">
         <div className="container mx-auto">
+
+
+
+
           <nav className="flex items-center justify-between">
+          <Link to="/">
+              <img src={logo} alt="Logo" className="w-20 h-18 " />
+            </Link>
           {
   isMobile ? (
-    <div className="flex items-center justify-end w-full">
+    <div className="flex items-center justify-end w-full ">
       <ul className="flex space-x-4">
         {/* Display the Logout button if authenticated */}
         {isAuthenticated ? (
@@ -130,6 +138,7 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
     <ul className="flex space-x-4">
       {/* Display the current user's name if authenticated */}
       {isAuthenticated ? (
+
                 <li className="relative">
                   <button
                     className="text-white cursor-pointer"
@@ -137,6 +146,7 @@ const HeaderLayout = ({ children }: HeaderLayoutProps) => {
                   >
                     {currentUser?.username}
                   </button>
+
                   {isDropdownOpen && (
                     <div
                       id="dropdownInformation"

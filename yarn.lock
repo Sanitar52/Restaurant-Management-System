@@ -12451,6 +12451,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"html-to-image@npm:^1.11.11":
+  version: 1.11.11
+  resolution: "html-to-image@npm:1.11.11"
+  checksum: 0b6349221ad253dfca01d165c589d44341e942faf0273aab28c8b7d86ff2922d3e8e6390f57bf5ddaf6bac9a3b590a8cdaa77d52a363354796dd0e0e05eb35d2
+  languageName: node
+  linkType: hard
+
 "html-webpack-plugin@npm:5.5.3":
   version: 5.5.3
   resolution: "html-webpack-plugin@npm:5.5.3"
@@ -17410,6 +17417,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"qr.js@npm:0.0.0":
+  version: 0.0.0
+  resolution: "qr.js@npm:0.0.0"
+  checksum: 1c6a4c7a58d04e52ec2fee99e39b680fdc5b2a510a981df42c36b716a8eac6634d130fc4d65af8f030f2a07dbf5fa046b97cdfa7456c250ebb50a73916efdcb5
+  languageName: node
+  linkType: hard
+
 "qs@npm:6.11.0":
   version: 6.11.0
   resolution: "qs@npm:6.11.0"
@@ -17621,6 +17635,22 @@ __metadata:
   version: 18.2.0
   resolution: "react-is@npm:18.2.0"
   checksum: 6eb5e4b28028c23e2bfcf73371e72cd4162e4ac7ab445ddae2afe24e347a37d6dc22fae6e1748632cd43c6d4f9b8f86dcf26bf9275e1874f436d129952528ae0
+  languageName: node
+  linkType: hard
+
+"react-qr-code@npm:^2.0.12":
+  version: 2.0.12
+  resolution: "react-qr-code@npm:2.0.12"
+  dependencies:
+    prop-types: ^15.8.1
+    qr.js: 0.0.0
+  peerDependencies:
+    react: ^16.x || ^17.x || ^18.x
+    react-native-svg: "*"
+  peerDependenciesMeta:
+    react-native-svg:
+      optional: true
+  checksum: e02896764b7ff88fb1b8eb1d8ae7201f862a459ebc97732a8a18171c3d47a51a32341906fb673d9304d0d4dc4fd90093b1ebe42f428bb148f299d2929e2399ef
   languageName: node
   linkType: hard
 
@@ -18315,7 +18345,9 @@ __metadata:
     "@redwoodjs/auth-dbauth-setup": 6.3.1
     "@redwoodjs/core": 6.3.1
     ethers: ^6.10.0
+    html-to-image: ^1.11.11
     prettier-plugin-tailwindcss: 0.4.1
+    react-qr-code: ^2.0.12
   languageName: unknown
   linkType: soft
 
